@@ -292,7 +292,7 @@ let E = {
   editTipo: 'receita',
   restaurantes: ['Galeteria Express', 'Seu Antonio Pizzaria'],
   categorias: {
-    receita: ['Vendas no salão', 'Delivery', 'Eventos', 'Outros'],
+    receita: ['Venda no cartão', 'Venda no pix', 'Venda no dinheiro', 'Repasse Ifood', 'Outros'],
     despesa: ['Carnes e proteínas', 'Hortifruti', 'Bebidas', 'Secos e laticínios', 'Descartáveis', 'Folha de pagamento', 'Aluguel', 'Energia e água', 'Manutenção', 'Marketing', 'Outros']
   },
   lancamentos: []
@@ -335,9 +335,16 @@ async function sincronizar() {
     const data = await res.json();
     if (data.rows && data.rows.length > 1) {
       E.lancamentos = data.rows.slice(1).filter(r => r[0]).map(r => ({
-        id: parseInt(r[0]), data: r[1], restaurante: r[2], tipo: r[3],
-        subTipo: r[4], categoria: r[5], descricao: r[6],
-        valor: parseFloat(r[7]), mesRef: r[8], mesCob: r[9]
+        id: parseInt(r[0]),
+        data: String(r[1]).slice(0,10),
+        restaurante: String(r[2]),
+        tipo: String(r[3]),
+        subTipo: String(r[4]),
+        categoria: String(r[5]),
+        descricao: String(r[6]),
+        valor: parseFloat(r[7]),
+        mesRef: String(r[8]).slice(0,7),
+        mesCob: String(r[9]).slice(0,7)
       }));
       salvar();
     }
@@ -632,6 +639,7 @@ function init() {
   populateCats();
   renderAll();
   sincronizar();
+  setInterval(sincronizar, 5 * 60 * 1000);
 }
 
 init();
