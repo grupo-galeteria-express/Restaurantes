@@ -825,7 +825,7 @@ function initEstoque() {
 function getQtyItem(itemId, restaurante) {
   const movs = E.movimentacoes.filter(m => m.itemId === itemId && (!restaurante || m.restaurante === restaurante));
   return movs.reduce((s, m) => {
-    if (m.motivo === 'entrada' || m.motivo === 'inventario') return s + m.qty;
+    if (m.motivo === 'entrada') return s + m.qty;
     return s - m.qty;
   }, 0);
 }
@@ -957,7 +957,7 @@ function renderMovimentacoes() {
 
   tbody.innerHTML = movs.map(m => {
     const item = (E.itensEstoque||[]).find(i => i.id === m.itemId);
-    const isPos = m.motivo === 'entrada' || m.motivo === 'inventario';
+    const isPos = m.motivo === 'entrada';
     const qtyDisplay = (m.qty % 1 === 0) ? String(Math.round(m.qty)) : m.qty.toFixed(2);
     return `<tr>
       <td>${m.data.split('-').reverse().join('/')}</td>
