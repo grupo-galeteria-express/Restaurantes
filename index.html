@@ -261,7 +261,7 @@
       </div>
       <div class="card" style="padding:0.5rem 0;overflow-x:auto;">
         <table class="mov-table">
-          <thead><tr><th>Data</th><th>Item</th><th>Restaurante</th><th>Motivo</th><th class="r">Qtd</th></tr></thead>
+          <thead><tr><th>Data</th><th>Item</th><th>Restaurante</th><th>Motivo</th><th class="r">Qtd</th><th></th></tr></thead>
           <tbody id="mov-tbody"></tbody>
         </table>
       </div>
@@ -757,6 +757,16 @@ function remCat(c) {
   populateCats(); renderConfig();
 }
 
+
+async function deletarMov(id) {
+  if (!confirm('Cancelar esta movimentação?')) return;
+  E.movimentacoes = E.movimentacoes.filter(m => m.id !== id);
+  salvar();
+  renderEstoque();
+  renderMovimentacoes();
+  showSB('Movimentação cancelada.', 'ok');
+  setTimeout(() => showSB('',''), 2000);
+}
 function renderAll() { renderMetricas(); renderHoje(); renderHist(); renderDRE(); renderConfig(); }
 
 
@@ -832,12 +842,14 @@ function renderEstoque() {
   el.innerHTML = itens.map(item => {
     const qty = getQtyItem(item.id, rest || null);
     const isLow = item.minimo > 0 && qty <= item.minimo;
-    const qtyDisplay = Number.isInteger(qty) ? qty : qty.toFixed(2);
-    return `<div class="estoque-item ${isLow ? 'low' : ''}">
-      <div class="estoque-nome">${item.nome}</div>
-      <div class="estoque-unidade">${item.unidade}</div>
-      <div class="estoque-qty ${isLow ? 'low' : ''}">${qtyDisplay}</div>
+    const qtyDisplay = (qty % 1 === 0) ? qty.toFixed(0) : qty.toFixed(2);
+    return `<div class="estoque-item ${isLow ? 'low' : ''}" id="est-item-${item.id}">
       <button class="qty-btn minus" onclick="abrirAjuste('${item.id}', 'saida')">−</button>
+      <div style="flex:1;padding:0 8px;">
+        <div class="estoque-nome">${item.nome}</div>
+        <div class="estoque-unidade">${item.unidade}</div>
+      </div>
+      <div class="estoque-qty ${isLow ? 'low' : ''}" id="qty-display-${item.id}">${qtyDisplay} <span style="font-size:12px;color:var(--text-hint);font-weight:400;">${item.unidade}</span></div>
       <button class="qty-btn plus" onclick="abrirAjuste('${item.id}', 'entrada')">+</button>
     </div>`;
   }).join('');
@@ -890,9 +902,18 @@ async function confirmarAjuste() {
     E.movimentacoes.push(mov);
     salvar();
     fecharModal('modal-ajuste');
-    renderEstoque();
+    // Update qty display immediately
+    const novaQty = getQtyItem(mov.itemId, null);
+    const qtyEl = document.getElementById('qty-display-' + mov.itemId);
+    if (qtyEl) {
+      const item = (E.itensEstoque||[]).find(i => i.id === mov.itemId);
+      const qtyDisplay = (novaQty % 1 === 0) ? novaQty.toFixed(0) : novaQty.toFixed(2);
+      qtyEl.innerHTML = qtyDisplay + ' <span style="font-size:12px;color:var(--text-hint);font-weight:400;">' + (item?item.unidade:'') + '</span>';
+      const isLow = item && item.minimo > 0 && novaQty <= item.minimo;
+      qtyEl.className = 'estoque-qty' + (isLow ? ' low' : '');
+    }
     renderMovimentacoes();
-    showSB('Movimentação salva!', 'ok');
+    showSB('Movimentação salva! ' + (mov.motivo === 'entrada' ? '+' : '-') + mov.qty, 'ok');
     setTimeout(() => showSB('',''), 2000);
   } catch(e) { showSB('Erro: ' + e.message, 'err'); }
 }
@@ -937,13 +958,14 @@ function renderMovimentacoes() {
   tbody.innerHTML = movs.map(m => {
     const item = (E.itensEstoque||[]).find(i => i.id === m.itemId);
     const isPos = m.motivo === 'entrada' || m.motivo === 'inventario';
-    const qtyDisplay = Number.isInteger(m.qty) ? m.qty : m.qty.toFixed(2);
+    const qtyDisplay = (m.qty % 1 === 0) ? String(Math.round(m.qty)) : m.qty.toFixed(2);
     return `<tr>
       <td>${m.data.split('-').reverse().join('/')}</td>
       <td>${item ? item.nome : m.itemId}</td>
       <td style="font-size:12px;color:var(--text-hint);">${m.restaurante}</td>
       <td><span class="badge ${isPos ? 'b-rec' : 'b-av'}">${motivoLabel[m.motivo]||m.motivo}</span></td>
       <td class="r" style="color:${isPos?'var(--green)':'var(--red)'};">${isPos?'+':'-'}${qtyDisplay} ${item?item.unidade:''}</td>
+      <td><button class="btn-danger" onclick="deletarMov(${m.id})">✕</button></td>
     </tr>`;
   }).join('');
 }
