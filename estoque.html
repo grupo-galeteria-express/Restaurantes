@@ -313,13 +313,37 @@ function populateRests() {
   sel.innerHTML = '<option value="">Todos</option>' + RESTAURANTES.map(r => `<option value="${r}">${r}</option>`).join('');
 }
 
+async function sincronizar() {
+  try {
+    const res = await fetch(SCRIPT_URL + '?sheet=movimentacoes&t=' + Date.now());
+    const data = await res.json();
+    if (data.rows && data.rows.length > 1) {
+      E.movimentacoes = data.rows.slice(1).filter(r => r[0]).map(r => ({
+        id: parseInt(r[0]),
+        itemId: String(r[1]),
+        restaurante: String(r[2]),
+        motivo: String(r[3]),
+        qty: parseFloat(r[4]),
+        data: String(r[5]).slice(0,10)
+      }));
+      salvar();
+      renderEstoque();
+      renderMovHoje();
+    }
+    const agora = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('ultima-atualizacao').textContent = 'Atualizado às ' + agora;
+  } catch(e) {
+    console.log('Erro sincronizar:', e.message);
+  }
+}
+
 function init() {
   carregar();
   populateRests();
   renderEstoque();
   renderMovHoje();
-  const agora = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-  document.getElementById('ultima-atualizacao').textContent = 'Atualizado às ' + agora;
+  sincronizar();
+  setInterval(sincronizar, 2 * 60 * 1000);
 }
 
 init();
