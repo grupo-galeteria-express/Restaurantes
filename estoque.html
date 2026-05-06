@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Estoque — Galeteria Express & Seu Antonio Pizzaria</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #F7F6F3; --surface: #FFFFFF; --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+    --text: #1A1A18; --text-muted: #6B6B67; --text-hint: #9E9E99;
+    --green: #1D9E75; --green-bg: #E1F5EE; --green-text: #0F6E56;
+    --red: #D85A30; --red-bg: #FAECE7; --red-text: #993C1D;
+    --amber: #BA7517; --amber-bg: #FAEEDA; --amber-text: #854F0B;
+    --blue: #185FA5; --blue-bg: #E6F1FB; --blue-text: #0C447C;
+    --radius: 10px; --radius-sm: 6px;
+    --font: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.25rem; position: sticky; top: 0; z-index: 100; }
+  .header-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 52px; }
+  .logo { font-size: 15px; font-weight: 500; letter-spacing: -0.02em; }
+  .logo span { color: var(--text-muted); font-weight: 300; }
+  .main { max-width: 600px; margin: 0 auto; padding: 1.25rem; }
+  .sbar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 1rem; }
+  .sbar.ok { background: var(--green-bg); color: var(--green-text); }
+  .sbar.err { background: var(--red-bg); color: var(--red-text); }
+  .sbar.info { background: var(--blue-bg); color: var(--blue-text); }
+  .spinner { width: 13px; height: 13px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .filter-row { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+  input, select { font-family: var(--font); font-size: 14px; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 0 10px; height: 38px; outline: none; }
+  input:focus, select:focus { border-color: var(--text); }
+  .estoque-grid { display: flex; flex-direction: column; gap: 8px; }
+  .estoque-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+  .estoque-item.low { border-left: 3px solid var(--red); }
+  .estoque-nome { flex: 1; font-size: 14px; font-weight: 500; }
+  .estoque-unidade { font-size: 12px; color: var(--text-hint); }
+  .estoque-qty { font-size: 20px; font-weight: 500; font-family: var(--mono); min-width: 80px; text-align: center; }
+  .estoque-qty.low { color: var(--red); }
+  .qty-btn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--bg); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); flex-shrink: 0; transition: all 0.15s; }
+  .qty-btn.plus:hover, .qty-btn.plus:active { background: var(--green); color: white; border-color: var(--green); }
+  .qty-btn.minus:hover, .qty-btn.minus:active { background: var(--red); color: white; border-color: var(--red); }
+  .btn { height: 38px; padding: 0 18px; font-size: 14px; cursor: pointer; border-radius: var(--radius-sm); font-family: var(--font); font-weight: 500; border: none; }
+  .btn-primary { background: var(--text); color: white; }
+  .btn-ghost { background: none; border: 1px solid var(--border-strong); color: var(--text-muted); }
+  .empty { text-align: center; padding: 3rem; color: var(--text-hint); font-size: 13px; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; width: 100%; max-width: 380px; }
+  .modal-title { font-size: 16px; font-weight: 500; margin-bottom: 1.25rem; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .form-group label { font-size: 12px; color: var(--text-muted); }
+  .form-group input, .form-group select { width: 100%; }
+  .modal-btns { display: flex; gap: 8px; margin-top: 1.25rem; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+  .b-rec { background: var(--green-bg); color: var(--green-text); }
+  .b-av { background: var(--red-bg); color: var(--red-text); }
+  .section-title { font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 1.5rem 0 0.75rem; }
+  .mov-table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .mov-table th { font-size: 11px; color: var(--text-hint); text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.05em; }
+  .mov-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
+  .mov-table tr:last-child td { border-bottom: none; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">Estoque <span>Restaurantes</span></div>
+    <span style="font-size:12px;color:var(--text-hint);" id="ultima-atualizacao"></span>
+  </div>
+</div>
+
+<div class="main">
+  <div id="sb"></div>
+
+  <div class="filter-row">
+    <input type="text" id="busca" placeholder="Buscar item..." oninput="renderEstoque()" style="flex:1;" />
+    <select id="filtro-rest" onchange="renderEstoque()">
+      <option value="">Todos</option>
+    </select>
+  </div>
+
+  <div id="estoque-lista" class="estoque-grid"></div>
+
+  <div class="section-title">Minhas movimentações de hoje</div>
+  <table class="mov-table">
+    <thead><tr><th>Item</th><th>Motivo</th><th>Qtd</th></tr></thead>
+    <tbody id="mov-hoje"></tbody>
+  </table>
+</div>
+
+<!-- MODAL AJUSTE -->
+<div class="modal-overlay" id="modal-ajuste">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Ajustar estoque</div>
+    <input type="hidden" id="modal-item-id" />
+    <input type="hidden" id="modal-tipo" />
+    <div class="form-group">
+      <label>Quantidade</label>
+      <input type="number" id="modal-qty" step="0.01" min="0.01" placeholder="0" inputmode="decimal" />
+    </div>
+    <div class="form-group">
+      <label>Motivo</label>
+      <select id="modal-motivo"></select>
+    </div>
+    <div class="form-group">
+      <label>Restaurante</label>
+      <select id="modal-rest"></select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmarAjuste()">Confirmar</button>
+      <button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwC8GD9Zh222I00EmO9qlu7u0URGsQm_xSyWkoSqBKb6hcctrHnjwYSh_gBcIEzGc1E/exec';
+const SK = 'gest_rest_v5';
+
+const RESTAURANTES = ['Galeteria Express', 'Seu Antonio Pizzaria'];
+
+const ITENS_INICIAIS = [
+  {id:'i001',nome:'Tomate',unidade:'kg',minimo:0},
+  {id:'i002',nome:'Mussarela',unidade:'kg',minimo:0},
+  {id:'i003',nome:'Provolone',unidade:'kg',minimo:0},
+  {id:'i004',nome:'Gorgonzola',unidade:'kg',minimo:0},
+  {id:'i005',nome:'Carne de sol',unidade:'kg',minimo:0},
+  {id:'i006',nome:'Carne moída',unidade:'kg',minimo:0},
+  {id:'i007',nome:'Filé de peixe',unidade:'kg',minimo:0},
+  {id:'i008',nome:'Carne bife',unidade:'kg',minimo:0},
+  {id:'i009',nome:'Maminha',unidade:'kg',minimo:0},
+  {id:'i010',nome:'Peito de frango',unidade:'kg',minimo:0},
+  {id:'i011',nome:'Frango panqueca',unidade:'kg',minimo:0},
+  {id:'i012',nome:'Calabresa',unidade:'kg',minimo:0},
+  {id:'i013',nome:'Arroz',unidade:'kg',minimo:0},
+  {id:'i014',nome:'Macarrão',unidade:'gramas',minimo:0},
+  {id:'i015',nome:'Massa lasanha',unidade:'gramas',minimo:0},
+  {id:'i016',nome:'Farinha de rosca',unidade:'kg',minimo:0},
+  {id:'i017',nome:'Batata palha',unidade:'kg',minimo:0},
+  {id:'i018',nome:'Batata palito',unidade:'kg',minimo:0},
+  {id:'i019',nome:'Cenoura',unidade:'kg',minimo:0},
+  {id:'i020',nome:'Batata inglesa',unidade:'kg',minimo:0},
+  {id:'i021',nome:'Farinha de trigo',unidade:'kg',minimo:0},
+  {id:'i022',nome:'Creme de leite',unidade:'litro',minimo:0},
+  {id:'i023',nome:'Leite',unidade:'litro',minimo:0},
+  {id:'i024',nome:'Presunto',unidade:'kg',minimo:0},
+  {id:'i025',nome:'Feijão',unidade:'kg',minimo:0},
+  {id:'i026',nome:'Feijão verde',unidade:'kg',minimo:0},
+  {id:'i027',nome:'Manjericão',unidade:'und',minimo:0},
+  {id:'i028',nome:'Açúcar',unidade:'kg',minimo:0},
+  {id:'i029',nome:'Cebola',unidade:'kg',minimo:0},
+  {id:'i030',nome:'Macaxeira',unidade:'kg',minimo:0},
+  {id:'i031',nome:'Creme do sertão',unidade:'kg',minimo:0},
+  {id:'i032',nome:'Maionese',unidade:'kg',minimo:0},
+  {id:'i033',nome:'Bacon',unidade:'kg',minimo:0},
+  {id:'i034',nome:'Parmesão',unidade:'kg',minimo:0},
+  {id:'i035',nome:'Manteiga da terra',unidade:'kg',minimo:0},
+  {id:'i036',nome:'Alho',unidade:'kg',minimo:0},
+  {id:'i037',nome:'Salsa',unidade:'kg',minimo:0},
+  {id:'i038',nome:'Macarrão fettuccine',unidade:'kg',minimo:0},
+  {id:'i039',nome:'Molho barbecue',unidade:'kg',minimo:0},
+  {id:'i040',nome:'Catupiry',unidade:'kg',minimo:0},
+  {id:'i041',nome:'Molho cheddar',unidade:'kg',minimo:0}
+];
+
+let E = { itensEstoque: [], movimentacoes: [] };
+let ajusteAtual = null;
+
+function salvar() { try { localStorage.setItem(SK, JSON.stringify(E)); } catch(e) {} }
+function carregar() {
+  try {
+    const d = localStorage.getItem(SK);
+    if (d) { const p = JSON.parse(d); E = {...E, ...p}; }
+  } catch(e) {}
+  if (!E.itensEstoque || !E.itensEstoque.length) E.itensEstoque = JSON.parse(JSON.stringify(ITENS_INICIAIS));
+  if (!E.movimentacoes) E.movimentacoes = [];
+}
+
+function showSB(msg, type) {
+  const el = document.getElementById('sb');
+  if (!msg) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="sbar ${type}">${type==='info'?'<div class="spinner"></div>':''} ${msg}</div>`;
+}
+
+function getQty(itemId, restaurante) {
+  return E.movimentacoes
+    .filter(m => m.itemId === itemId && (!restaurante || m.restaurante === restaurante))
+    .reduce((s, m) => m.motivo === 'entrada' ? s + m.qty : s - m.qty, 0);
+}
+
+function renderEstoque() {
+  const busca = (document.getElementById('busca').value || '').toLowerCase();
+  const rest = document.getElementById('filtro-rest').value;
+  let itens = E.itensEstoque || [];
+  if (busca) itens = itens.filter(i => i.nome.toLowerCase().includes(busca));
+
+  const el = document.getElementById('estoque-lista');
+  if (!itens.length) { el.innerHTML = '<div class="empty">Nenhum item encontrado.</div>'; return; }
+
+  el.innerHTML = itens.map(item => {
+    const qty = getQty(item.id, rest || null);
+    const isLow = item.minimo > 0 && qty <= item.minimo;
+    const qtyDisplay = (qty % 1 === 0) ? String(Math.round(qty)) : qty.toFixed(2);
+    return `<div class="estoque-item ${isLow?'low':''}" id="est-${item.id}">
+      <button class="qty-btn minus" onclick="abrirAjuste('${item.id}','saida')">−</button>
+      <div style="flex:1;padding:0 8px;">
+        <div class="estoque-nome">${item.nome}</div>
+        <div class="estoque-unidade">${item.unidade}</div>
+      </div>
+      <div class="estoque-qty ${isLow?'low':''}" id="qty-${item.id}">${qtyDisplay} <span style="font-size:12px;color:var(--text-hint);font-weight:400;">${item.unidade}</span></div>
+      <button class="qty-btn plus" onclick="abrirAjuste('${item.id}','entrada')">+</button>
+    </div>`;
+  }).join('');
+}
+
+function renderMovHoje() {
+  const hoje = new Date().toISOString().slice(0,10);
+  const movs = E.movimentacoes.filter(m => m.data === hoje).slice().reverse();
+  const motivoLabel = {entrada:'Entrada', uso:'Uso', perda:'Perda', inventario:'Correção'};
+  const tbody = document.getElementById('mov-hoje');
+  if (!movs.length) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:1.5rem;color:var(--text-hint);">Nenhuma movimentação hoje.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = movs.map(m => {
+    const item = (E.itensEstoque||[]).find(i => i.id === m.itemId);
+    const isPos = m.motivo === 'entrada';
+    const qtyDisplay = (m.qty % 1 === 0) ? String(Math.round(m.qty)) : m.qty.toFixed(2);
+    return `<tr>
+      <td>${item ? item.nome : m.itemId}</td>
+      <td><span class="badge ${isPos?'b-rec':'b-av'}">${motivoLabel[m.motivo]||m.motivo}</span></td>
+      <td style="font-weight:500;color:${isPos?'var(--green)':'var(--red)'};">${isPos?'+':'-'}${qtyDisplay} ${item?item.unidade:''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function abrirAjuste(itemId, tipo) {
+  const item = (E.itensEstoque||[]).find(i => i.id === itemId);
+  if (!item) return;
+  ajusteAtual = { itemId, tipo };
+
+  document.getElementById('modal-title').textContent = tipo === 'entrada' ? `Entrada — ${item.nome}` : `Saída — ${item.nome}`;
+  document.getElementById('modal-qty').value = '';
+
+  const selMotivo = document.getElementById('modal-motivo');
+  if (tipo === 'entrada') {
+    selMotivo.innerHTML = '<option value="entrada">Entrada (compra/recebimento)</option>';
+  } else {
+    selMotivo.innerHTML = `
+      <option value="uso">Uso na produção</option>
+      <option value="perda">Perda / descarte</option>
+      <option value="inventario">Correção</option>`;
+  }
+
+  const selRest = document.getElementById('modal-rest');
+  selRest.innerHTML = RESTAURANTES.map(r => `<option value="${r}">${r}</option>`).join('');
+
+  document.getElementById('modal-ajuste').classList.add('open');
+  setTimeout(() => document.getElementById('modal-qty').focus(), 150);
+}
+
+function fecharModal() {
+  document.getElementById('modal-ajuste').classList.remove('open');
+}
+
+async function confirmarAjuste() {
+  const qty = parseFloat(document.getElementById('modal-qty').value);
+  const motivo = document.getElementById('modal-motivo').value;
+  const rest = document.getElementById('modal-rest').value;
+  if (isNaN(qty) || qty <= 0) { alert('Informe uma quantidade válida.'); return; }
+
+  const mov = {
+    id: Date.now(),
+    itemId: ajusteAtual.itemId,
+    restaurante: rest,
+    motivo,
+    qty,
+    data: new Date().toISOString().slice(0,10),
+    timestamp: new Date().toISOString(),
+    sheet: 'movimentacoes'
+  };
+
+  showSB('Salvando...', 'info');
+  try {
+    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(mov) });
+    await res.json();
+    E.movimentacoes.push(mov);
+    salvar();
+    fecharModal();
+
+    // Atualiza qty na tela
+    const novaQty = getQty(mov.itemId, null);
+    const el = document.getElementById('qty-' + mov.itemId);
+    if (el) {
+      const item = (E.itensEstoque||[]).find(i => i.id === mov.itemId);
+      const qd = (novaQty % 1 === 0) ? String(Math.round(novaQty)) : novaQty.toFixed(2);
+      el.innerHTML = qd + ' <span style="font-size:12px;color:var(--text-hint);font-weight:400;">' + (item?item.unidade:'') + '</span>';
+    }
+    renderMovHoje();
+    showSB('Salvo!', 'ok');
+    setTimeout(() => showSB('',''), 2000);
+  } catch(e) {
+    showSB('Erro: ' + e.message, 'err');
+  }
+}
+
+function populateRests() {
+  const sel = document.getElementById('filtro-rest');
+  sel.innerHTML = '<option value="">Todos</option>' + RESTAURANTES.map(r => `<option value="${r}">${r}</option>`).join('');
+}
+
+function init() {
+  carregar();
+  populateRests();
+  renderEstoque();
+  renderMovHoje();
+  const agora = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('ultima-atualizacao').textContent = 'Atualizado às ' + agora;
+}
+
+init();
+</script>
+</body>
+</html>
