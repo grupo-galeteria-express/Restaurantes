@@ -405,10 +405,14 @@ async function sincronizar() {
   icon.style.animation = 'spin 0.7s linear infinite';
   showSB('Sincronizando...', 'info');
   try {
-    const res = await fetch(SCRIPT_URL + '?t=' + Date.now());
-    const data = await res.json();
-    if (data.rows && data.rows.length > 1) {
-      E.lancamentos = data.rows.slice(1).filter(r => r[0]).map(r => ({
+    const [res1, res2] = await Promise.all([
+      fetch(SCRIPT_URL + '?t=' + Date.now()),
+      fetch(SCRIPT_URL + '?sheet=movimentacoes&t=' + Date.now())
+    ]);
+    const data1 = await res1.json();
+    const data2 = await res2.json();
+    if (data1.rows && data1.rows.length > 1) {
+      E.lancamentos = data1.rows.slice(1).filter(r => r[0]).map(r => ({
         id: parseInt(r[0]),
         data: String(r[1]).slice(0,10),
         restaurante: String(r[2]),
@@ -420,11 +424,23 @@ async function sincronizar() {
         mesRef: String(r[8]).slice(0,7),
         mesCob: String(r[9]).slice(0,7)
       }));
-      salvar();
     }
+    if (data2.rows && data2.rows.length > 1) {
+      E.movimentacoes = data2.rows.slice(1).filter(r => r[0]).map(r => ({
+        id: parseInt(r[0]),
+        itemId: String(r[1]),
+        restaurante: String(r[2]),
+        motivo: String(r[3]),
+        qty: parseFloat(r[4]),
+        data: String(r[5]).slice(0,10)
+      }));
+    }
+    salvar();
     showSB('Sincronizado!', 'ok');
     setTimeout(() => showSB('',''), 3000);
     renderAll();
+    renderEstoque();
+    renderMovimentacoes();
   } catch(e) { showSB('Erro: ' + e.message, 'err'); }
   icon.style.animation = '';
 }
