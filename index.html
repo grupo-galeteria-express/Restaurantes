@@ -94,6 +94,29 @@
   .empty { text-align: center; padding: 3rem; color: var(--text-hint); font-size: 13px; }
   .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 13px; margin: 3px; }
   .ibox { background: var(--blue-bg); border-left: 3px solid var(--blue); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 10px 14px; font-size: 13px; color: var(--blue-text); margin-bottom: 1rem; }
+
+  /* Estoque */
+  .estoque-grid { display: flex; flex-direction: column; gap: 8px; }
+  .estoque-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+  .estoque-item.low { border-left: 3px solid var(--red); }
+  .estoque-nome { flex: 1; font-size: 14px; font-weight: 500; }
+  .estoque-unidade { font-size: 12px; color: var(--text-hint); min-width: 40px; }
+  .estoque-qty { font-size: 18px; font-weight: 500; font-family: var(--mono); min-width: 70px; text-align: center; }
+  .estoque-qty.low { color: var(--red); }
+  .qty-btn { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--bg); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: var(--font); color: var(--text-muted); flex-shrink: 0; }
+  .qty-btn:hover { background: var(--text); color: white; border-color: var(--text); }
+  .qty-btn.plus:hover { background: var(--green); border-color: var(--green); }
+  .qty-btn.minus:hover { background: var(--red); border-color: var(--red); }
+  .mov-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .mov-table th { font-size: 11px; color: var(--text-hint); text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.05em; }
+  .mov-table th.r { text-align: right; }
+  .mov-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .mov-table td.r { text-align: right; font-family: var(--mono); }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; width: 90%; max-width: 380px; }
+  .modal-title { font-size: 15px; font-weight: 500; margin-bottom: 1rem; }
+  .modal-btns { display: flex; gap: 8px; margin-top: 1rem; }
   @media (max-width: 600px) { .main { padding: 1rem; } .form-row { grid-template-columns: 1fr; } .metric-grid { grid-template-columns: 1fr 1fr; } }
 </style>
 </head>
@@ -109,6 +132,7 @@
     <button class="tab active" onclick="setTab('lancar')">Lançar</button>
     <button class="tab" onclick="setTab('historico')">Histórico</button>
     <button class="tab" onclick="setTab('dre')">DRE</button>
+    <button class="tab" onclick="setTab('estoque')">Estoque</button>
     <button class="tab" onclick="setTab('config')">Config</button>
   </div>
 </div>
@@ -211,6 +235,97 @@
     </div>
     <div class="ibox">Todos os percentuais são calculados sobre a <strong>Receita Líquida</strong> (após deduções).</div>
     <div id="dre-content"></div>
+  </div>
+
+
+  <!-- ESTOQUE -->
+  <div id="panel-estoque" class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="text" id="est-busca" placeholder="Buscar item..." onInput="renderEstoque()" style="height:34px;font-size:13px;width:180px;" />
+        <select id="est-restaurante" onchange="renderEstoque()" style="height:34px;font-size:13px;">
+          <option value="">Todos os restaurantes</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" style="height:34px;font-size:13px;" onclick="abrirModalItem()">+ Novo item</button>
+    </div>
+    <div id="estoque-lista" class="estoque-grid"></div>
+
+    <div style="margin-top:1.5rem;">
+      <div class="card-title" style="margin-bottom:12px;">Relatório de movimentações</div>
+      <div class="filter-row">
+        <input type="month" id="mov-mes" onchange="renderMovimentacoes()" style="height:34px;font-size:13px;" />
+        <select id="mov-item" onchange="renderMovimentacoes()" style="height:34px;font-size:13px;">
+          <option value="">Todos os itens</option>
+        </select>
+      </div>
+      <div class="card" style="padding:0.5rem 0;overflow-x:auto;">
+        <table class="mov-table">
+          <thead><tr><th>Data</th><th>Item</th><th>Restaurante</th><th>Motivo</th><th class="r">Qtd</th></tr></thead>
+          <tbody id="mov-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL AJUSTE -->
+  <div class="modal-overlay" id="modal-ajuste">
+    <div class="modal">
+      <div class="modal-title" id="modal-ajuste-title">Ajustar quantidade</div>
+      <input type="hidden" id="modal-item-id" />
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>Quantidade</label>
+        <input type="number" id="modal-qty" step="0.01" min="0" placeholder="0" />
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>Motivo</label>
+        <select id="modal-motivo">
+          <option value="entrada">Entrada (compra/recebimento)</option>
+          <option value="uso">Uso na produção</option>
+          <option value="perda">Perda / descarte</option>
+          <option value="inventario">Inventário / correção</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>Restaurante</label>
+        <select id="modal-restaurante"></select>
+      </div>
+      <div class="modal-btns">
+        <button class="btn btn-primary" style="flex:1;" onclick="confirmarAjuste()">Confirmar</button>
+        <button class="btn btn-ghost" onclick="fecharModal('modal-ajuste')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NOVO ITEM -->
+  <div class="modal-overlay" id="modal-novo-item">
+    <div class="modal">
+      <div class="modal-title">Novo item de estoque</div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>Nome do item</label>
+        <input type="text" id="novo-item-nome" placeholder="Ex: Frango inteiro" />
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>Unidade de medida</label>
+        <select id="novo-item-unidade">
+          <option value="kg">kg</option>
+          <option value="gramas">gramas</option>
+          <option value="litro">litro</option>
+          <option value="und">und</option>
+          <option value="saco">saco</option>
+          <option value="caixa">caixa</option>
+          <option value="pacote">pacote</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>Estoque mínimo (opcional)</label>
+        <input type="number" id="novo-item-minimo" placeholder="0" min="0" step="0.01" />
+      </div>
+      <div class="modal-btns">
+        <button class="btn btn-primary" style="flex:1;" onclick="salvarNovoItem()">Adicionar</button>
+        <button class="btn btn-ghost" onclick="fecharModal('modal-novo-item')">Cancelar</button>
+      </div>
+    </div>
   </div>
 
   <!-- CONFIG -->
@@ -319,6 +434,7 @@ function setTab(t) {
   document.querySelectorAll('.panel').forEach(el => el.classList.remove('active'));
   document.querySelector(`[onclick="setTab('${t}')"]`).classList.add('active');
   document.getElementById('panel-' + t).classList.add('active');
+  if (t === 'estoque') { populateEstRestaurantes(); renderEstoque(); renderMovimentacoes(); }
 }
 
 const TIPOS = ['receita','deducao','compra','despesa_var','despesa_fix','despesa_fin'];
@@ -643,6 +759,205 @@ function remCat(c) {
 
 function renderAll() { renderMetricas(); renderHoje(); renderHist(); renderDRE(); renderConfig(); }
 
+
+// ============ ESTOQUE ============
+const ITENS_INICIAIS = [
+  {id:'i001',nome:'Tomate',unidade:'kg',minimo:0},
+  {id:'i002',nome:'Mussarela',unidade:'kg',minimo:0},
+  {id:'i003',nome:'Provolone',unidade:'kg',minimo:0},
+  {id:'i004',nome:'Gorgonzola',unidade:'kg',minimo:0},
+  {id:'i005',nome:'Carne de sol',unidade:'kg',minimo:0},
+  {id:'i006',nome:'Carne moída',unidade:'kg',minimo:0},
+  {id:'i007',nome:'Filé de peixe',unidade:'kg',minimo:0},
+  {id:'i008',nome:'Carne bife',unidade:'kg',minimo:0},
+  {id:'i009',nome:'Maminha',unidade:'kg',minimo:0},
+  {id:'i010',nome:'Peito de frango',unidade:'kg',minimo:0},
+  {id:'i011',nome:'Frango panqueca',unidade:'kg',minimo:0},
+  {id:'i012',nome:'Calabresa',unidade:'kg',minimo:0},
+  {id:'i013',nome:'Arroz',unidade:'kg',minimo:0},
+  {id:'i014',nome:'Macarrão',unidade:'gramas',minimo:0},
+  {id:'i015',nome:'Massa lasanha',unidade:'gramas',minimo:0},
+  {id:'i016',nome:'Farinha de rosca',unidade:'kg',minimo:0},
+  {id:'i017',nome:'Batata palha',unidade:'kg',minimo:0},
+  {id:'i018',nome:'Batata palito',unidade:'kg',minimo:0},
+  {id:'i019',nome:'Cenoura',unidade:'kg',minimo:0},
+  {id:'i020',nome:'Batata inglesa',unidade:'kg',minimo:0},
+  {id:'i021',nome:'Farinha de trigo',unidade:'kg',minimo:0},
+  {id:'i022',nome:'Creme de leite',unidade:'litro',minimo:0},
+  {id:'i023',nome:'Leite',unidade:'litro',minimo:0},
+  {id:'i024',nome:'Presunto',unidade:'kg',minimo:0},
+  {id:'i025',nome:'Feijão',unidade:'kg',minimo:0},
+  {id:'i026',nome:'Feijão verde',unidade:'kg',minimo:0},
+  {id:'i027',nome:'Manjericão',unidade:'und',minimo:0},
+  {id:'i028',nome:'Açúcar',unidade:'kg',minimo:0},
+  {id:'i029',nome:'Cebola',unidade:'kg',minimo:0},
+  {id:'i030',nome:'Macaxeira',unidade:'kg',minimo:0},
+  {id:'i031',nome:'Creme do sertão',unidade:'kg',minimo:0},
+  {id:'i032',nome:'Maionese',unidade:'kg',minimo:0},
+  {id:'i033',nome:'Bacon',unidade:'kg',minimo:0},
+  {id:'i034',nome:'Parmesão',unidade:'kg',minimo:0},
+  {id:'i035',nome:'Manteiga da terra',unidade:'kg',minimo:0},
+  {id:'i036',nome:'Alho',unidade:'kg',minimo:0},
+  {id:'i037',nome:'Salsa',unidade:'kg',minimo:0},
+  {id:'i038',nome:'Macarrão fettuccine',unidade:'kg',minimo:0},
+  {id:'i039',nome:'Molho barbecue',unidade:'kg',minimo:0},
+  {id:'i040',nome:'Catupiry',unidade:'kg',minimo:0},
+  {id:'i041',nome:'Molho cheddar',unidade:'kg',minimo:0}
+];
+
+let ajusteAtual = null;
+
+function initEstoque() {
+  if (!E.itensEstoque) E.itensEstoque = JSON.parse(JSON.stringify(ITENS_INICIAIS));
+  if (!E.movimentacoes) E.movimentacoes = [];
+}
+
+function getQtyItem(itemId, restaurante) {
+  const movs = E.movimentacoes.filter(m => m.itemId === itemId && (!restaurante || m.restaurante === restaurante));
+  return movs.reduce((s, m) => {
+    if (m.motivo === 'entrada' || m.motivo === 'inventario') return s + m.qty;
+    return s - m.qty;
+  }, 0);
+}
+
+function renderEstoque() {
+  const busca = (document.getElementById('est-busca').value || '').toLowerCase();
+  const rest = document.getElementById('est-restaurante').value;
+  let itens = E.itensEstoque || [];
+  if (busca) itens = itens.filter(i => i.nome.toLowerCase().includes(busca));
+
+  const el = document.getElementById('estoque-lista');
+  if (!itens.length) { el.innerHTML = '<div class="empty">Nenhum item encontrado.</div>'; return; }
+
+  el.innerHTML = itens.map(item => {
+    const qty = getQtyItem(item.id, rest || null);
+    const isLow = item.minimo > 0 && qty <= item.minimo;
+    const qtyDisplay = Number.isInteger(qty) ? qty : qty.toFixed(2);
+    return `<div class="estoque-item ${isLow ? 'low' : ''}">
+      <div class="estoque-nome">${item.nome}</div>
+      <div class="estoque-unidade">${item.unidade}</div>
+      <div class="estoque-qty ${isLow ? 'low' : ''}">${qtyDisplay}</div>
+      <button class="qty-btn minus" onclick="abrirAjuste('${item.id}', 'saida')">−</button>
+      <button class="qty-btn plus" onclick="abrirAjuste('${item.id}', 'entrada')">+</button>
+    </div>`;
+  }).join('');
+
+  // populate mov-item select
+  const sel = document.getElementById('mov-item');
+  const val = sel.value;
+  sel.innerHTML = '<option value="">Todos os itens</option>' + (E.itensEstoque||[]).map(i => `<option value="${i.id}">${i.nome}</option>`).join('');
+  if (val) sel.value = val;
+}
+
+function abrirAjuste(itemId, tipo) {
+  const item = (E.itensEstoque||[]).find(i => i.id === itemId);
+  if (!item) return;
+  ajusteAtual = { itemId, tipo };
+  document.getElementById('modal-ajuste-title').textContent = tipo === 'entrada' ? `Entrada — ${item.nome}` : `Saída — ${item.nome}`;
+  document.getElementById('modal-motivo').value = tipo === 'entrada' ? 'entrada' : 'uso';
+  document.getElementById('modal-qty').value = '';
+
+  const sel = document.getElementById('modal-restaurante');
+  sel.innerHTML = E.restaurantes.map(r => `<option value="${r}">${r}</option>`).join('');
+
+  document.getElementById('modal-ajuste').classList.add('open');
+  setTimeout(() => document.getElementById('modal-qty').focus(), 100);
+}
+
+function fecharModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+async function confirmarAjuste() {
+  const qty = parseFloat(document.getElementById('modal-qty').value);
+  const motivo = document.getElementById('modal-motivo').value;
+  const rest = document.getElementById('modal-restaurante').value;
+  if (isNaN(qty) || qty <= 0) { alert('Informe uma quantidade válida.'); return; }
+
+  const mov = {
+    id: Date.now(),
+    itemId: ajusteAtual.itemId,
+    restaurante: rest,
+    motivo,
+    qty,
+    data: new Date().toISOString().slice(0,10),
+    timestamp: new Date().toISOString()
+  };
+
+  showSB('Salvando movimentação...', 'info');
+  try {
+    await enviarMovSheet(mov);
+    E.movimentacoes.push(mov);
+    salvar();
+    fecharModal('modal-ajuste');
+    renderEstoque();
+    renderMovimentacoes();
+    showSB('Movimentação salva!', 'ok');
+    setTimeout(() => showSB('',''), 2000);
+  } catch(e) { showSB('Erro: ' + e.message, 'err'); }
+}
+
+async function enviarMovSheet(mov) {
+  const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({...mov, sheet: 'movimentacoes'}) });
+  const d = await res.json();
+  if (!d.ok) throw new Error('Erro no script');
+}
+
+function abrirModalItem() {
+  document.getElementById('novo-item-nome').value = '';
+  document.getElementById('novo-item-minimo').value = '';
+  document.getElementById('modal-novo-item').classList.add('open');
+  setTimeout(() => document.getElementById('novo-item-nome').focus(), 100);
+}
+
+function salvarNovoItem() {
+  const nome = document.getElementById('novo-item-nome').value.trim();
+  const unidade = document.getElementById('novo-item-unidade').value;
+  const minimo = parseFloat(document.getElementById('novo-item-minimo').value) || 0;
+  if (!nome) { alert('Informe o nome do item.'); return; }
+  if (!E.itensEstoque) E.itensEstoque = [];
+  const id = 'i' + String(Date.now()).slice(-6);
+  E.itensEstoque.push({ id, nome, unidade, minimo });
+  salvar();
+  fecharModal('modal-novo-item');
+  renderEstoque();
+}
+
+function renderMovimentacoes() {
+  const mes = document.getElementById('mov-mes').value;
+  const itemId = document.getElementById('mov-item').value;
+  let movs = (E.movimentacoes || []).slice().reverse();
+  if (mes) movs = movs.filter(m => m.data.startsWith(mes));
+  if (itemId) movs = movs.filter(m => m.itemId === itemId);
+
+  const motivoLabel = { entrada: 'Entrada', uso: 'Uso', perda: 'Perda', inventario: 'Inventário' };
+  const tbody = document.getElementById('mov-tbody');
+  if (!movs.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-hint);">Nenhuma movimentação encontrada.</td></tr>'; return; }
+
+  tbody.innerHTML = movs.map(m => {
+    const item = (E.itensEstoque||[]).find(i => i.id === m.itemId);
+    const isPos = m.motivo === 'entrada' || m.motivo === 'inventario';
+    const qtyDisplay = Number.isInteger(m.qty) ? m.qty : m.qty.toFixed(2);
+    return `<tr>
+      <td>${m.data.split('-').reverse().join('/')}</td>
+      <td>${item ? item.nome : m.itemId}</td>
+      <td style="font-size:12px;color:var(--text-hint);">${m.restaurante}</td>
+      <td><span class="badge ${isPos ? 'b-rec' : 'b-av'}">${motivoLabel[m.motivo]||m.motivo}</span></td>
+      <td class="r" style="color:${isPos?'var(--green)':'var(--red)'};">${isPos?'+':'-'}${qtyDisplay} ${item?item.unidade:''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function populateEstRestaurantes() {
+  ['est-restaurante','modal-restaurante'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    const isFilter = id === 'est-restaurante';
+    el.innerHTML = isFilter ? '<option value="">Todos os restaurantes</option>' : '';
+    E.restaurantes.forEach(r => el.innerHTML += `<option value="${r}">${r}</option>`);
+  });
+}
+// ============ FIM ESTOQUE ============
+
 function init() {
   carregar();
   const hoje = new Date().toISOString().slice(0,10);
@@ -653,10 +968,16 @@ function init() {
   document.getElementById('mes-ref').value = mes;
   const pm = new Date(); pm.setMonth(pm.getMonth()+1);
   document.getElementById('mes-cob').value = pm.toISOString().slice(0,7);
+  initEstoque();
   setTipo('receita');
   populateRests();
+  populateEstRestaurantes();
   populateCats();
   renderAll();
+  renderEstoque();
+  renderMovimentacoes();
+  const movMes = new Date().toISOString().slice(0,7);
+  document.getElementById('mov-mes').value = movMes;
   sincronizar();
   setInterval(sincronizar, 5 * 60 * 1000);
 }
