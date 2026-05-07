@@ -794,7 +794,7 @@ function renderAll() { renderMetricas(); renderHoje(); renderHist(); renderDRE()
 
 // ============ ESTOQUE ============
 const ITENS_INICIAIS = [
-  // ── GALETERIA EXPRESS ──────────────────────────────────────────
+  // GALETERIA EXPRESS
   // Proteínas e Carnes
   {id:'g001',nome:'Carne de sol',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
   {id:'g002',nome:'Carne moída',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
@@ -842,7 +842,7 @@ const ITENS_INICIAIS = [
   {id:'g040',nome:'Manteiga da terra',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Temperos'},
   // Mercearia
   {id:'g041',nome:'Açúcar',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Mercearia'},
-  // ── SEU ANTONIO PIZZARIA ────────────────────────────────────────
+  // SEU ANTONIO PIZZARIA
   // Molhos e Condimentos
   {id:'p001',nome:'Azeitona verde c/caroço',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
   {id:'p002',nome:'Ketchup Hellmanns',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
@@ -906,7 +906,10 @@ const ITENS_INICIAIS = [
 let ajusteAtual = null;
 
 function initEstoque() {
-  if (!E.itensEstoque) E.itensEstoque = JSON.parse(JSON.stringify(ITENS_INICIAIS));
+  // Reset if items don't have categoria (old format) or are empty
+  if (!E.itensEstoque || !E.itensEstoque.length || !E.itensEstoque[0].categoria) {
+    E.itensEstoque = JSON.parse(JSON.stringify(ITENS_INICIAIS));
+  }
   if (!E.movimentacoes) E.movimentacoes = [];
 }
 
@@ -921,39 +924,48 @@ function getQtyItem(itemId, restaurante) {
 function renderEstoque() {
   const busca = (document.getElementById('est-busca').value || '').toLowerCase();
   const rest = document.getElementById('est-restaurante').value;
-
+  let itens = E.itensEstoque || [];
+  if (busca) itens = itens.filter(i => i.nome.toLowerCase().includes(busca));
+  if (rest) itens = itens.filter(i => i.restaurante === rest);
 
   const el = document.getElementById('estoque-lista');
   if (!itens.length) { el.innerHTML = '<div class="empty">Nenhum item encontrado.</div>'; return; }
 
   // Group by categoria
-  const grupos = {};
-  itens.forEach(item => {
-    const cat = item.categoria || 'Outros';
-    if (!grupos[cat]) grupos[cat] = [];
-    grupos[cat].push(item);
-  });
+  var grupos = {};
+  for (var gi = 0; gi < itens.length; gi++) {
+    var gItem = itens[gi];
+    var gCat = gItem.categoria || 'Outros';
+    if (!grupos[gCat]) grupos[gCat] = [];
+    grupos[gCat].push(gItem);
+  }
 
-  let html = '';
-  Object.keys(grupos).sort().forEach(cat => {
-    html += `<div style="margin-bottom:1.25rem;">
-      <div style="font-size:11px;font-weight:600;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.06em;padding:0 4px;margin-bottom:8px;">${cat}</div>
-      ${grupos[cat].map(item => {
-        const qty = getQtyItem(item.id, null);
-        const isLow = item.minimo > 0 && qty <= item.minimo;
-        const qtyDisplay = (qty % 1 === 0) ? String(Math.round(qty)) : qty.toFixed(2);
-        return `<div class="estoque-item ${isLow?'low':''}" id="est-item-${item.id}">
-          <button class="qty-btn minus" onclick="abrirAjuste('${item.id}', 'saida')">−</button>
-          <div style="flex:1;padding:0 8px;">
-            <div class="estoque-nome">${item.nome}</div>
-            <div class="estoque-unidade">${item.unidade}</div>
-          </div>
-          <div class="estoque-qty ${isLow?'low':''}" id="qty-display-${item.id}">${qtyDisplay} <span style="font-size:12px;color:var(--text-hint);font-weight:400;">${item.unidade}</span></div>
-          <button class="qty-btn plus" onclick="abrirAjuste('${item.id}', 'entrada')">+</button>
-        </div>`;
-      }).join('')}
-    </div>`;
-  });
+  var html = '';
+  var catKeys = Object.keys(grupos).sort();
+  for (var ci = 0; ci < catKeys.length; ci++) {
+    var cat = catKeys[ci];
+    var catHtml = '';
+    var catItems = grupos[cat];
+    for (var ii = 0; ii < catItems.length; ii++) {
+      var item = catItems[ii];
+      var qty = getQtyItem(item.id, null);
+      var isLow = item.minimo > 0 && qty <= item.minimo;
+      var qtyDisplay = (qty % 1 === 0) ? String(Math.round(qty)) : qty.toFixed(2);
+      var lowClass = isLow ? ' low' : '';
+      catHtml += '<div class="estoque-item' + lowClass + '" id="est-item-' + item.id + '">';
+      catHtml += '<button class="qty-btn minus" data-id="' + item.id + '" data-tipo="saida" onclick="abrirAjusteBtn(this)">−</button>';
+      catHtml += '<div style="flex:1;padding:0 8px;">';
+      catHtml += '<div class="estoque-nome">' + item.nome + '</div>';
+      catHtml += '<div class="estoque-unidade">' + item.unidade + '</div>';
+      catHtml += '</div>';
+      catHtml += '<div class="estoque-qty' + lowClass + '" id="qty-display-' + item.id + '">' + qtyDisplay + ' <span style="font-size:12px;color:#9E9E99;font-weight:400;">' + item.unidade + '</span></div>';
+      catHtml += '<button class="qty-btn plus" data-id="' + item.id + '" data-tipo="entrada" onclick="abrirAjusteBtn(this)">+</button>';
+      catHtml += '</div>';
+    }
+    html += '<div style="margin-bottom:1.25rem;">';
+    html += '<div style="font-size:11px;font-weight:600;color:#9E9E99;text-transform:uppercase;letter-spacing:0.06em;padding:0 4px;margin-bottom:8px;">' + cat + '</div>';
+    html += catHtml + '</div>';
+  }
   el.innerHTML = html;
 
   // populate mov-item select
@@ -1081,6 +1093,13 @@ function populateEstRestaurantes() {
   });
 }
 // ============ FIM ESTOQUE ============
+
+
+function abrirAjusteBtn(btn) {
+  var id = btn.getAttribute('data-id');
+  var tipo = btn.getAttribute('data-tipo');
+  abrirAjuste(id, tipo);
+}
 
 function init() {
   carregar();
