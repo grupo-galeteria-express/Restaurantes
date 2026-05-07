@@ -1047,8 +1047,17 @@ async function enviarMovSheet(mov) {
   if (!d.ok) throw new Error('Erro no script');
 }
 
+var CATS_PADRAO = {
+  'Galeteria Express': ['Proteínas e Carnes', 'Laticínios e Queijos', 'Hortifruti', 'Massas e Farinhas', 'Mercearia', 'Molhos e Temperos', 'Bebidas', 'Embalagens e Descartáveis'],
+  'Seu Antonio Pizzaria': ['Molhos e Condimentos', 'Laticínios e Queijos', 'Frios e Proteínas', 'Doces e Coberturas', 'Farinhas e Massas', 'Mercearia', 'Embalagens e Descartáveis', 'Bebidas']
+};
+
 function getCatsDoRestaurante(rest) {
   var cats = {};
+  // Add default categories
+  var padrao = CATS_PADRAO[rest] || [];
+  padrao.forEach(function(c) { cats[c] = true; });
+  // Add any custom categories from existing items
   (E.itensEstoque || []).forEach(function(i) {
     if (i.restaurante === rest && i.categoria) cats[i.categoria] = true;
   });
