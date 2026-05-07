@@ -8,11 +8,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="Galeteria" />
-<meta name="theme-color" content="#E63B00" />
+<meta name="theme-color" content="#E63000" />
 <title>Gestão Financeira — Restaurantes</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   :root {
+    --brand: #E63000; --brand-dark: #B32500; --brand-light: #FF6B35; --brand-bg: #FFF1EC;
     --bg: #F7F6F3; --surface: #FFFFFF; --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
     --text: #1A1A18; --text-muted: #6B6B67; --text-hint: #9E9E99;
     --green: #1D9E75; --green-bg: #E1F5EE; --green-text: #0F6E56;
@@ -25,15 +26,17 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; min-height: 100vh; }
-  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; position: sticky; top: 0; z-index: 100; }
-  .header-inner { max-width: 780px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 52px; }
-  .logo { font-size: 15px; font-weight: 500; letter-spacing: -0.02em; }
-  .logo span { color: var(--text-muted); font-weight: 300; }
-  .sync-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); cursor: pointer; background: none; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 6px 12px; font-family: var(--font); }
+  .header { background: var(--brand); border-bottom: none; padding: 0 1.5rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(230,48,0,0.25); }
+  .header-inner { max-width: 780px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .logo { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; color: white; display: flex; align-items: center; gap: 8px; }
+  .logo .flame { font-size: 20px; }
+  .logo span { color: rgba(255,255,255,0.75); font-weight: 300; }
+  .sync-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; color: white; cursor: pointer; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: var(--radius-sm); padding: 6px 12px; font-family: var(--font); }
+  .sync-btn:hover { background: rgba(255,255,255,0.25); }
   .tabs-bar { background: var(--surface); border-bottom: 1px solid var(--border); }
   .tabs-inner { max-width: 780px; margin: 0 auto; display: flex; padding: 0 1.5rem; overflow-x: auto; }
   .tab { padding: 12px 14px; font-size: 13px; color: var(--text-muted); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: var(--font); white-space: nowrap; }
-  .tab.active { color: var(--text); font-weight: 500; border-bottom-color: var(--text); }
+  .tab.active { color: var(--brand); font-weight: 500; border-bottom-color: var(--brand); }
   .main { max-width: 780px; margin: 0 auto; padding: 1.5rem; }
   .panel { display: none; }
   .panel.active { display: block; }
@@ -61,9 +64,10 @@
   input[type="month"] { height: 38px; }
   .toggle-group { display: flex; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); overflow: hidden; height: 38px; }
   .toggle-btn { flex: 1; border: none; background: none; font-size: 12px; cursor: pointer; color: var(--text-muted); font-family: var(--font); }
-  .toggle-btn.active { background: var(--text); color: white; font-weight: 500; }
+  .toggle-btn.active { background: var(--brand); color: white; font-weight: 500; }
   .btn { height: 38px; padding: 0 18px; font-size: 14px; cursor: pointer; border-radius: var(--radius-sm); font-family: var(--font); font-weight: 500; }
-  .btn-primary { background: var(--text); color: white; border: none; }
+  .btn-primary { background: var(--brand); color: white; border: none; }
+  .btn-primary:hover { background: var(--brand-dark); }
   .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
   .btn-ghost { background: none; border: 1px solid var(--border-strong); color: var(--text-muted); }
   .btn-danger { background: none; border: none; color: var(--red); font-size: 12px; cursor: pointer; padding: 2px 6px; font-family: var(--font); }
@@ -147,7 +151,7 @@
 <body>
 <div class="header">
   <div class="header-inner">
-    <div class="logo">Gestão <span>Restaurantes</span></div>
+    <div class="logo"><span class="flame">🔥</span> Galeteria <span>Express</span></div>
     <button class="sync-btn" onclick="sincronizar()"><span id="sync-icon">↻</span> Sincronizar</button>
   </div>
 </div>
@@ -347,7 +351,7 @@
           <option value="pacote">pacote</option>
         </select>
       </div>
-      <div class="form-group" style="margin-bottom:10px;">
+      <div class="form-group" style="margin-bottom:10px;" id="novo-item-rest-grupo">
         <label>Restaurante</label>
         <select id="novo-item-restaurante"></select>
       </div>
@@ -1584,9 +1588,16 @@ function abrirModalItem() {
   document.getElementById('novo-item-categoria').value = '';
   var selRest = document.getElementById('novo-item-restaurante');
   selRest.innerHTML = E.restaurantes.map(function(r) { return '<option value="' + r + '">' + r + '</option>'; }).join('');
-  // Pre-select the active filter restaurante
   var filtroAtivo = document.getElementById('est-restaurante').value;
-  if (filtroAtivo) selRest.value = filtroAtivo;
+  var grupoRest = document.getElementById('novo-item-rest-grupo');
+  if (filtroAtivo) {
+    // Filtro ativo: pre-select and hide the field
+    selRest.value = filtroAtivo;
+    if (grupoRest) grupoRest.style.display = 'none';
+  } else {
+    // No filter: show the field
+    if (grupoRest) grupoRest.style.display = '';
+  }
   atualizarCatSugestoes();
   selRest.onchange = atualizarCatSugestoes;
   document.getElementById('modal-novo-item').classList.add('open');
