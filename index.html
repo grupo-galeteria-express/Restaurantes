@@ -376,6 +376,20 @@
       <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Script conectado e ativo.</p>
       <button class="btn btn-ghost" onclick="sincronizar()">↻ Sincronizar agora</button>
     </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span class="card-title" style="margin:0;">Categorias do Estoque</span>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-ghost" style="font-size:11px;height:28px;padding:0 8px;" id="ec-gal" onclick="setEstRest('Galeteria Express')">Galeteria</button>
+          <button class="btn btn-ghost" style="font-size:11px;height:28px;padding:0 8px;" id="ec-piz" onclick="setEstRest('Seu Antonio Pizzaria')">Pizzaria</button>
+        </div>
+      </div>
+      <div id="lista-cats-estoque" style="display:flex;flex-wrap:wrap;margin-bottom:12px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="nova-cat-estoque" placeholder="Nova categoria de estoque" style="flex:1;" />
+        <button class="btn btn-primary" onclick="addCatEstoque()">Adicionar</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -798,6 +812,58 @@ async function deletarMov(id) {
   showSB('Movimentação cancelada.', 'ok');
   setTimeout(() => showSB('',''), 2000);
 }
+
+// ── Categorias de estoque ──
+var estRestAtual = 'Galeteria Express';
+
+function setEstRest(rest) {
+  estRestAtual = rest;
+  document.getElementById('ec-gal').style.background = rest === 'Galeteria Express' ? 'var(--text)' : '';
+  document.getElementById('ec-gal').style.color = rest === 'Galeteria Express' ? 'white' : '';
+  document.getElementById('ec-piz').style.background = rest === 'Seu Antonio Pizzaria' ? 'var(--text)' : '';
+  document.getElementById('ec-piz').style.color = rest === 'Seu Antonio Pizzaria' ? 'white' : '';
+  renderCatsEstoque();
+}
+
+function renderCatsEstoque() {
+  var cats = getCatsDoRestaurante(estRestAtual);
+  var el = document.getElementById('lista-cats-estoque');
+  if (!el) return;
+  var html = '';
+  for (var i = 0; i < cats.length; i++) {
+    var c = cats[i];
+    var enc = encodeURIComponent(c);
+    html += '<span class="chip">' + c + '<button class="btn-danger" style="padding:0;font-size:11px;" data-cat="' + enc + '" onclick="remCatEstoqueBtn(this)">&#x2715;</button></span>';
+  }
+  el.innerHTML = html;
+}
+
+function remCatEstoqueBtn(btn) {
+  var cat = decodeURIComponent(btn.getAttribute('data-cat'));
+  remCatEstoque(cat);
+}
+
+function addCatEstoque() {
+  var v = document.getElementById('nova-cat-estoque').value.trim();
+  if (!v) return;
+  if (!CATS_PADRAO[estRestAtual]) CATS_PADRAO[estRestAtual] = [];
+  if (!CATS_PADRAO[estRestAtual].includes(v)) {
+    CATS_PADRAO[estRestAtual].push(v);
+    salvar();
+  }
+  document.getElementById('nova-cat-estoque').value = '';
+  renderCatsEstoque();
+}
+
+function remCatEstoque(cat) {
+  if (!confirm('Excluir categoria "' + cat + '"? Os itens dessa categoria ficarão sem categoria.')) return;
+  if (CATS_PADRAO[estRestAtual]) {
+    CATS_PADRAO[estRestAtual] = CATS_PADRAO[estRestAtual].filter(function(c) { return c !== cat; });
+  }
+  salvar();
+  renderCatsEstoque();
+}
+
 function renderAll() { renderMetricas(); renderHoje(); renderHist(); renderDRE(); renderConfig(); }
 
 
@@ -1054,7 +1120,7 @@ var CATS_PADRAO = {
 
 function getCatsDoRestaurante(rest) {
   var cats = {};
-  // Add default categories
+  // Add default/custom categories from CATS_PADRAO
   var padrao = CATS_PADRAO[rest] || [];
   padrao.forEach(function(c) { cats[c] = true; });
   // Add any custom categories from existing items
