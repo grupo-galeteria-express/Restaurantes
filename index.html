@@ -320,7 +320,7 @@
           <option value="inventario">Inventário / correção</option>
         </select>
       </div>
-      <div class="form-group" style="margin-bottom:10px;">
+      <div class="form-group" style="margin-bottom:10px;" id="modal-ajuste-rest-grupo">
         <label>Restaurante</label>
         <select id="modal-restaurante"></select>
       </div>
@@ -1512,6 +1512,15 @@ function abrirAjuste(itemId, tipo) {
 
   const sel = document.getElementById('modal-restaurante');
   sel.innerHTML = E.restaurantes.map(r => `<option value="${r}">${r}</option>`).join('');
+
+  // Pre-select from item's restaurante or active filter
+  const filtroAtivo = document.getElementById('est-restaurante').value;
+  const preSelect = filtroAtivo || item.restaurante;
+  if (preSelect) sel.value = preSelect;
+
+  // Hide restaurante field if filter is active
+  const grupoRest = document.getElementById('modal-ajuste-rest-grupo');
+  if (grupoRest) grupoRest.style.display = filtroAtivo ? 'none' : '';
 
   document.getElementById('modal-ajuste').classList.add('open');
   setTimeout(() => document.getElementById('modal-qty').focus(), 100);
