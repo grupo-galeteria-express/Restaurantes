@@ -158,6 +158,7 @@
     <button class="tab" onclick="setTab('dre')">DRE</button>
     <button class="tab" onclick="setTab('estoque')">Estoque</button>
     <button class="tab" onclick="setTab('pendencias')">Pendências</button>
+    <button class="tab" onclick="setTab('relatorios')">Relatórios</button>
     <button class="tab" onclick="setTab('config')">Config</button>
   </div>
 </div>
@@ -199,7 +200,7 @@
         </div>
         <div class="form-group">
           <label>Valor (R$)</label>
-          <input type="number" id="valor" placeholder="0,00" min="0" step="0.01" inputmode="decimal" />
+          <input type="text" id="valor" placeholder="0,00" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" />
         </div>
       </div>
       <div class="form-group" id="g-mod" style="display:none; margin-bottom:10px;">
@@ -412,6 +413,39 @@
     <div style="font-size:12px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin:1.5rem 0 10px;">Concluídas</div>
     <div id="lista-concluidas"></div>
   </div>
+
+  <!-- RELATÓRIOS -->
+  <div id="panel-relatorios" class="panel">
+    <div class="card">
+      <div class="card-title">Relatório de Consumo</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Data início</label>
+          <input type="date" id="rel-inicio" />
+        </div>
+        <div class="form-group">
+          <label>Data fim</label>
+          <input type="date" id="rel-fim" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Restaurante</label>
+          <select id="rel-rest">
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="rel-cat">
+            <option value="">Todas</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="gerarRelatorio()" style="width:100%;">Gerar relatório</button>
+    </div>
+    <div id="rel-resultado"></div>
+  </div>
   <!-- CONFIG -->
   <div id="panel-config" class="panel">
     <div class="card">
@@ -488,7 +522,31 @@ function fmt(v) { return 'R$ ' + Math.abs(v).toLocaleString('pt-BR', {minimumFra
 function pct(v, base) { return base > 0 ? (v/base*100).toFixed(1)+'%' : '-'; }
 
 function salvar() { try { localStorage.setItem(SK, JSON.stringify(E)); } catch(e) {} }
-function carregar() { try { const d = localStorage.getItem(SK); if (d) { const p = JSON.parse(d); E = {...E, ...p}; } } catch(e) {} }
+function carregar() {
+  try {
+    const d = localStorage.getItem(SK);
+    if (d) {
+      const p = JSON.parse(d);
+      // Merge categorias - keep any custom ones added by user
+      if (p.categorias) {
+        Object.keys(p.categorias).forEach(function(tipo) {
+          if (E.categorias[tipo]) {
+            // Merge: keep defaults + add any custom ones
+            var merged = E.categorias[tipo].slice();
+            (p.categorias[tipo] || []).forEach(function(cat) {
+              if (!merged.includes(cat)) merged.push(cat);
+            });
+            E.categorias[tipo] = merged;
+          } else {
+            E.categorias[tipo] = p.categorias[tipo];
+          }
+        });
+        delete p.categorias;
+      }
+      E = {...E, ...p};
+    }
+  } catch(e) {}
+}
 
 function showSB(msg, type) {
   const el = document.getElementById('sb');
@@ -502,17 +560,57 @@ async function enviarSheets(lanc) {
   if (!d.ok) throw new Error('Erro no script');
 }
 
+
+async function salvarConfig() {
+  const configItems = [
+    { chave: 'restaurantes', valor: JSON.stringify(E.restaurantes) },
+    { chave: 'categorias', valor: JSON.stringify(E.categorias) },
+    { chave: 'itensEstoque', valor: JSON.stringify(E.itensEstoque || []) },
+    { chave: 'catsEstoque', valor: JSON.stringify(CATS_PADRAO) }
+  ];
+  for (const item of configItems) {
+    try {
+      await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({...item, sheet: 'config'}) });
+    } catch(e) {}
+  }
+}
+
+async function salvarPendenciaSheets(pend) {
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({...pend, sheet: 'pendencias'}) });
+  } catch(e) {}
+}
+
+async function atualizarPendenciaSheets(pend) {
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({
+      action: 'update', sheet: 'pendencias',
+      id: pend.id, done: pend.done, resolvidoEm: pend.resolvidoEm
+    })});
+  } catch(e) {}
+}
+
+async function deletarPendenciaSheets(id) {
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action: 'delete', sheet: 'pendencias', id}) });
+  } catch(e) {}
+}
+
 async function sincronizar() {
   const icon = document.getElementById('sync-icon');
   icon.style.animation = 'spin 0.7s linear infinite';
   showSB('Sincronizando...', 'info');
   try {
-    const [res1, res2] = await Promise.all([
+    const [res1, res2, res3, res4] = await Promise.all([
       fetch(SCRIPT_URL + '?t=' + Date.now()),
-      fetch(SCRIPT_URL + '?sheet=movimentacoes&t=' + Date.now())
+      fetch(SCRIPT_URL + '?sheet=movimentacoes&t=' + Date.now()),
+      fetch(SCRIPT_URL + '?sheet=pendencias&t=' + Date.now()),
+      fetch(SCRIPT_URL + '?sheet=config&t=' + Date.now())
     ]);
     const data1 = await res1.json();
     const data2 = await res2.json();
+    const data3 = await res3.json();
+    const data4 = await res4.json();
     if (data1.rows && data1.rows.length > 1) {
       E.lancamentos = data1.rows.slice(1).filter(r => r[0]).map(r => ({
         id: parseInt(r[0]),
@@ -537,6 +635,53 @@ async function sincronizar() {
         data: String(r[5]).slice(0,10)
       }));
     }
+    // Preserve local settings that should never be overwritten by sync
+    // Load pendencias
+    if (data3.rows && data3.rows.length > 1) {
+      E.pendencias = data3.rows.slice(1).filter(r => r[0]).map(r => ({
+        id: parseInt(r[0]),
+        desc: String(r[1]),
+        prio: String(r[2]),
+        data: String(r[3]),
+        rest: String(r[4]),
+        done: String(r[5]) === 'true',
+        criadoEm: String(r[6]),
+        resolvidoEm: String(r[7])
+      }));
+    }
+    // Load config (restaurantes, categorias, itens estoque)
+    if (data4.config) {
+      const cfg = data4.config;
+      if (cfg.restaurantes) {
+        try { E.restaurantes = JSON.parse(cfg.restaurantes); } catch(e) {}
+      }
+      if (cfg.categorias) {
+        try {
+          const savedCats = JSON.parse(cfg.categorias);
+          // Merge with defaults - never lose custom categories
+          Object.keys(savedCats).forEach(function(tipo) {
+            if (!E.categorias[tipo]) E.categorias[tipo] = [];
+            savedCats[tipo].forEach(function(cat) {
+              if (!E.categorias[tipo].includes(cat)) E.categorias[tipo].push(cat);
+            });
+          });
+        } catch(e) {}
+      }
+      if (cfg.itensEstoque) {
+        try {
+          const savedItens = JSON.parse(cfg.itensEstoque);
+          // Merge: keep existing + add new ones
+          savedItens.forEach(function(si) {
+            if (!E.itensEstoque.find(i => i.id === si.id)) {
+              E.itensEstoque.push(si);
+            }
+          });
+        } catch(e) {}
+      }
+      if (cfg.catsEstoque) {
+        try { CATS_PADRAO = {...CATS_PADRAO, ...JSON.parse(cfg.catsEstoque)}; } catch(e) {}
+      }
+    }
     salvar();
     showSB('Sincronizado!', 'ok');
     setTimeout(() => showSB('',''), 3000);
@@ -554,6 +699,7 @@ function setTab(t) {
   document.getElementById('panel-' + t).classList.add('active');
   if (t === 'estoque') { populateEstRestaurantes(); renderEstoque(); renderMovimentacoes(); }
   if (t === 'pendencias') { populatePendRest(); renderPendencias(); }
+  if (t === 'relatorios') { initRelatorios(); }
 }
 
 const TIPOS = ['receita','deducao','compra','despesa_var','despesa_fix','despesa_fin','investimento','despesa_pes'];
@@ -637,7 +783,7 @@ async function lancar() {
   const rest = document.getElementById('restaurante').value;
   const data = document.getElementById('data').value;
   const cat = document.getElementById('categoria').value;
-  const valor = parseFloat(document.getElementById('valor').value.replace(',', '.'));
+  const valor = parseFloat(String(document.getElementById('valor').value).replace(',', '.'));
   const desc = document.getElementById('descricao').value.trim();
   const mod = document.getElementById('modalidade').value;
   const mesRef = document.getElementById('mes-ref').value;
@@ -868,6 +1014,7 @@ function addRest() {
   const v = document.getElementById('novo-rest').value.trim();
   if (!v || E.restaurantes.includes(v)) return;
   E.restaurantes.push(v); salvar();
+  salvarConfig();
   document.getElementById('novo-rest').value = '';
   populateRests(); renderConfig();
 }
@@ -875,6 +1022,7 @@ function addRest() {
 function remRest(r) {
   if (!confirm(`Remover "${r}"?`)) return;
   E.restaurantes = E.restaurantes.filter(x=>x!==r); salvar();
+  salvarConfig();
   populateRests(); renderConfig();
 }
 
@@ -882,13 +1030,13 @@ function addCat() {
   const v = document.getElementById('nova-cat').value.trim();
   if (!v) return;
   if (!E.categorias[E.editTipo]) E.categorias[E.editTipo] = [];
-  if (!E.categorias[E.editTipo].includes(v)) { E.categorias[E.editTipo].push(v); salvar(); }
+  if (!E.categorias[E.editTipo].includes(v)) { E.categorias[E.editTipo].push(v); salvar(); salvarConfig(); }
   document.getElementById('nova-cat').value = '';
   populateCats(); renderConfig();
 }
 
 function remCat(c) {
-  E.categorias[E.editTipo] = (E.categorias[E.editTipo]||[]).filter(x=>x!==c); salvar();
+  E.categorias[E.editTipo] = (E.categorias[E.editTipo]||[]).filter(x=>x!==c); salvar(); salvarConfig();
   populateCats(); renderConfig();
 }
 
@@ -924,13 +1072,14 @@ function renderCatsEstoque() {
   for (var i = 0; i < cats.length; i++) {
     var c = cats[i];
     var enc = encodeURIComponent(c);
-    html += '<span class="chip">' + c + '<button class="btn-danger" style="padding:0;font-size:11px;" data-cat="' + enc + '" onclick="remCatEstoqueBtn(this)">&#x2715;</button></span>';
+    html += '<span class="chip">' + c + ' <button class="btn-danger" style="padding:0;font-size:11px;" data-enc="' + enc + '" onclick="remCatEstoqueBtn(this)">&#x2715;</button></span> ';
   }
-  el.innerHTML = html;
+  el.innerHTML = html || '<div style="font-size:13px;color:var(--text-hint);">Nenhuma categoria cadastrada.</div>';
 }
 
 function remCatEstoqueBtn(btn) {
-  var cat = decodeURIComponent(btn.getAttribute('data-cat'));
+  var enc = btn.getAttribute('data-enc');
+  var cat = decodeURIComponent(enc);
   remCatEstoque(cat);
 }
 
@@ -941,6 +1090,7 @@ function addCatEstoque() {
   if (!CATS_PADRAO[estRestAtual].includes(v)) {
     CATS_PADRAO[estRestAtual].push(v);
     salvar();
+    salvarConfig();
   }
   document.getElementById('nova-cat-estoque').value = '';
   renderCatsEstoque();
@@ -952,9 +1102,113 @@ function remCatEstoque(cat) {
     CATS_PADRAO[estRestAtual] = CATS_PADRAO[estRestAtual].filter(function(c) { return c !== cat; });
   }
   salvar();
+  salvarConfig();
   renderCatsEstoque();
 }
 
+
+
+// ── RELATÓRIOS ──
+function initRelatorios() {
+  var selRest = document.getElementById('rel-rest');
+  if (!selRest) return;
+  selRest.innerHTML = '<option value="">Todos</option>';
+  E.restaurantes.forEach(function(r) {
+    selRest.innerHTML += '<option value="' + r + '">' + r + '</option>';
+  });
+  
+  // Populate categories from items
+  var cats = {};
+  (E.itensEstoque || []).forEach(function(i) { if (i.categoria) cats[i.categoria] = true; });
+  var selCat = document.getElementById('rel-cat');
+  selCat.innerHTML = '<option value="">Todas</option>';
+  Object.keys(cats).sort().forEach(function(c) {
+    selCat.innerHTML += '<option value="' + c + '">' + c + '</option>';
+  });
+}
+
+function gerarRelatorio() {
+  var inicio = document.getElementById('rel-inicio').value;
+  var fim = document.getElementById('rel-fim').value;
+  var rest = document.getElementById('rel-rest').value;
+  var cat = document.getElementById('rel-cat').value;
+  
+  if (!inicio || !fim) { alert('Selecione o período.'); return; }
+  if (inicio > fim) { alert('Data início deve ser anterior à data fim.'); return; }
+
+  var movs = (E.movimentacoes || []).filter(function(m) {
+    if (m.data < inicio || m.data > fim) return false;
+    if (rest && m.restaurante !== rest) return false;
+    if (!['uso', 'perda'].includes(m.motivo)) return false;
+    return true;
+  });
+
+  // Group by item
+  var consumo = {};
+  movs.forEach(function(m) {
+    if (!consumo[m.itemId]) consumo[m.itemId] = { uso: 0, perda: 0 };
+    if (m.motivo === 'uso') consumo[m.itemId].uso += m.qty;
+    else if (m.motivo === 'perda') consumo[m.itemId].perda += m.qty;
+  });
+
+  // Filter by category and build rows
+  var itens = (E.itensEstoque || []).filter(function(i) {
+    if (!consumo[i.id]) return false;
+    if (cat && i.categoria !== cat) return false;
+    return true;
+  });
+
+  // Group by category
+  var grupos = {};
+  itens.forEach(function(i) {
+    var c = i.categoria || 'Outros';
+    if (!grupos[c]) grupos[c] = [];
+    grupos[c].push(i);
+  });
+
+  var el = document.getElementById('rel-resultado');
+  if (!itens.length) {
+    el.innerHTML = '<div class="empty">Nenhum consumo encontrado no período.</div>';
+    return;
+  }
+
+  var totalUso = 0, totalPerda = 0;
+  var html = '';
+  
+  Object.keys(grupos).sort().forEach(function(grupoCat) {
+    html += '<div class="card" style="padding:0.75rem 0;margin-bottom:1rem;">';
+    html += '<div style="font-size:11px;font-weight:600;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.06em;padding:0 12px;margin-bottom:8px;">' + grupoCat + '</div>';
+    html += '<table class="dre-table"><thead><tr><th>Item</th><th class="r">Uso</th><th class="r">Perda</th><th class="r">Total</th></tr></thead><tbody>';
+    
+    grupos[grupoCat].forEach(function(item) {
+      var c = consumo[item.id];
+      var uso = c ? c.uso : 0;
+      var perda = c ? c.perda : 0;
+      var total = uso + perda;
+      totalUso += uso;
+      totalPerda += perda;
+      var fmtQty = function(v) { return (v % 1 === 0 ? Math.round(v) : v.toFixed(2)) + ' ' + item.unidade; };
+      html += '<tr>';
+      html += '<td>' + item.nome + '</td>';
+      html += '<td class="r" style="color:var(--text-muted);">' + (uso > 0 ? fmtQty(uso) : '—') + '</td>';
+      html += '<td class="r" style="color:var(--red);">' + (perda > 0 ? fmtQty(perda) : '—') + '</td>';
+      html += '<td class="r" style="font-weight:500;">' + fmtQty(total) + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  });
+
+  // Summary
+  var periodo = inicio.split('-').reverse().join('/') + ' a ' + fim.split('-').reverse().join('/');
+  html = '<div class="card" style="margin-bottom:1rem;background:var(--bg);">' +
+    '<div style="font-size:13px;color:var(--text-muted);">Período: <strong style="color:var(--text);">' + periodo + '</strong>' +
+    (rest ? ' · ' + rest : '') + (cat ? ' · ' + cat : '') + '</div>' +
+    '<div style="display:flex;gap:1rem;margin-top:8px;">' +
+    '<div><div style="font-size:11px;color:var(--text-hint);text-transform:uppercase;">Itens consumidos</div><div style="font-size:18px;font-weight:500;">' + itens.length + '</div></div>' +
+    '</div></div>' + html;
+
+  el.innerHTML = html;
+}
 
 // ── PENDÊNCIAS ──
 function initPendencias() {
@@ -977,7 +1231,7 @@ function addPendencia() {
   var rest = document.getElementById('pend-rest').value;
   if (!desc) { alert('Informe a descrição da pendência.'); return; }
   if (!E.pendencias) E.pendencias = [];
-  E.pendencias.push({
+  const novaPend = {
     id: Date.now(),
     desc: desc,
     prio: prio,
@@ -986,8 +1240,10 @@ function addPendencia() {
     done: false,
     criadoEm: new Date().toISOString().slice(0,10),
     resolvidoEm: null
-  });
+  };
+  E.pendencias.push(novaPend);
   salvar();
+  salvarPendenciaSheets(novaPend);
   document.getElementById('pend-desc').value = '';
   document.getElementById('pend-data').value = '';
   renderPendencias();
@@ -999,6 +1255,7 @@ function togglePendencia(id) {
   p.done = !p.done;
   p.resolvidoEm = p.done ? new Date().toISOString().slice(0,10) : null;
   salvar();
+  atualizarPendenciaSheets(p);
   renderPendencias();
 }
 
@@ -1006,6 +1263,7 @@ function deletePendencia(id) {
   if (!confirm('Excluir esta pendência?')) return;
   E.pendencias = (E.pendencias || []).filter(function(x) { return x.id !== id; });
   salvar();
+  deletarPendenciaSheets(id);
   renderPendencias();
 }
 
@@ -1350,6 +1608,7 @@ function salvarNovoItem() {
   var id = 'u' + String(Date.now()).slice(-6);
   E.itensEstoque.push({ id: id, nome: nome, unidade: unidade, minimo: minimo, restaurante: restaurante, categoria: categoria });
   salvar();
+  salvarConfig();
   fecharModal('modal-novo-item');
   renderEstoque();
 }
