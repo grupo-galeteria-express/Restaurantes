@@ -794,47 +794,113 @@ function renderAll() { renderMetricas(); renderHoje(); renderHist(); renderDRE()
 
 // ============ ESTOQUE ============
 const ITENS_INICIAIS = [
-  {id:'i001',nome:'Tomate',unidade:'kg',minimo:0},
-  {id:'i002',nome:'Mussarela',unidade:'kg',minimo:0},
-  {id:'i003',nome:'Provolone',unidade:'kg',minimo:0},
-  {id:'i004',nome:'Gorgonzola',unidade:'kg',minimo:0},
-  {id:'i005',nome:'Carne de sol',unidade:'kg',minimo:0},
-  {id:'i006',nome:'Carne moída',unidade:'kg',minimo:0},
-  {id:'i007',nome:'Filé de peixe',unidade:'kg',minimo:0},
-  {id:'i008',nome:'Carne bife',unidade:'kg',minimo:0},
-  {id:'i009',nome:'Maminha',unidade:'kg',minimo:0},
-  {id:'i010',nome:'Peito de frango',unidade:'kg',minimo:0},
-  {id:'i011',nome:'Frango panqueca',unidade:'kg',minimo:0},
-  {id:'i012',nome:'Calabresa',unidade:'kg',minimo:0},
-  {id:'i013',nome:'Arroz',unidade:'kg',minimo:0},
-  {id:'i014',nome:'Macarrão',unidade:'gramas',minimo:0},
-  {id:'i015',nome:'Massa lasanha',unidade:'gramas',minimo:0},
-  {id:'i016',nome:'Farinha de rosca',unidade:'kg',minimo:0},
-  {id:'i017',nome:'Batata palha',unidade:'kg',minimo:0},
-  {id:'i018',nome:'Batata palito',unidade:'kg',minimo:0},
-  {id:'i019',nome:'Cenoura',unidade:'kg',minimo:0},
-  {id:'i020',nome:'Batata inglesa',unidade:'kg',minimo:0},
-  {id:'i021',nome:'Farinha de trigo',unidade:'kg',minimo:0},
-  {id:'i022',nome:'Creme de leite',unidade:'litro',minimo:0},
-  {id:'i023',nome:'Leite',unidade:'litro',minimo:0},
-  {id:'i024',nome:'Presunto',unidade:'kg',minimo:0},
-  {id:'i025',nome:'Feijão',unidade:'kg',minimo:0},
-  {id:'i026',nome:'Feijão verde',unidade:'kg',minimo:0},
-  {id:'i027',nome:'Manjericão',unidade:'und',minimo:0},
-  {id:'i028',nome:'Açúcar',unidade:'kg',minimo:0},
-  {id:'i029',nome:'Cebola',unidade:'kg',minimo:0},
-  {id:'i030',nome:'Macaxeira',unidade:'kg',minimo:0},
-  {id:'i031',nome:'Creme do sertão',unidade:'kg',minimo:0},
-  {id:'i032',nome:'Maionese',unidade:'kg',minimo:0},
-  {id:'i033',nome:'Bacon',unidade:'kg',minimo:0},
-  {id:'i034',nome:'Parmesão',unidade:'kg',minimo:0},
-  {id:'i035',nome:'Manteiga da terra',unidade:'kg',minimo:0},
-  {id:'i036',nome:'Alho',unidade:'kg',minimo:0},
-  {id:'i037',nome:'Salsa',unidade:'kg',minimo:0},
-  {id:'i038',nome:'Macarrão fettuccine',unidade:'kg',minimo:0},
-  {id:'i039',nome:'Molho barbecue',unidade:'kg',minimo:0},
-  {id:'i040',nome:'Catupiry',unidade:'kg',minimo:0},
-  {id:'i041',nome:'Molho cheddar',unidade:'kg',minimo:0}
+  // ── GALETERIA EXPRESS ──────────────────────────────────────────
+  // Proteínas e Carnes
+  {id:'g001',nome:'Carne de sol',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
+  {id:'g002',nome:'Carne moída',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
+  {id:'g003',nome:'Carne bife',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
+  {id:'g004',nome:'Maminha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
+  {id:'g005',nome:'Peito de frango',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
+  {id:'g006',nome:'Frango panqueca',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
+  {id:'g007',nome:'Filé de peixe',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
+  {id:'g008',nome:'Calabresa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
+  {id:'g009',nome:'Bacon',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
+  {id:'g010',nome:'Presunto',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
+  // Laticínios e Queijos
+  {id:'g011',nome:'Mussarela',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
+  {id:'g012',nome:'Provolone',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
+  {id:'g013',nome:'Gorgonzola',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
+  {id:'g014',nome:'Parmesão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
+  {id:'g015',nome:'Creme de leite',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
+  {id:'g016',nome:'Leite',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
+  {id:'g017',nome:'Catupiry',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
+  {id:'g018',nome:'Creme do sertão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
+  {id:'g019',nome:'Maionese',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
+  // Hortifruti
+  {id:'g020',nome:'Tomate',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g021',nome:'Cenoura',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g022',nome:'Batata inglesa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g023',nome:'Batata palito',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g024',nome:'Batata palha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g025',nome:'Cebola',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g026',nome:'Macaxeira',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g027',nome:'Alho',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g028',nome:'Salsa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g029',nome:'Manjericão',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g030',nome:'Feijão verde',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  // Massas e Farinhas
+  {id:'g031',nome:'Arroz',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
+  {id:'g032',nome:'Feijão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
+  {id:'g033',nome:'Macarrão',unidade:'gramas',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
+  {id:'g034',nome:'Massa lasanha',unidade:'gramas',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
+  {id:'g035',nome:'Macarrão fettuccine',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
+  {id:'g036',nome:'Farinha de trigo',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
+  {id:'g037',nome:'Farinha de rosca',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
+  // Molhos e Temperos
+  {id:'g038',nome:'Molho barbecue',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Temperos'},
+  {id:'g039',nome:'Molho cheddar',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Temperos'},
+  {id:'g040',nome:'Manteiga da terra',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Temperos'},
+  // Mercearia
+  {id:'g041',nome:'Açúcar',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Mercearia'},
+  // ── SEU ANTONIO PIZZARIA ────────────────────────────────────────
+  // Molhos e Condimentos
+  {id:'p001',nome:'Azeitona verde c/caroço',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
+  {id:'p002',nome:'Ketchup Hellmanns',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
+  {id:'p003',nome:'Maionese Hellmanns',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
+  {id:'p004',nome:'Molho Barbecue Tambaú',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
+  {id:'p005',nome:'Molho Tarê Sakura 5L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
+  {id:'p006',nome:'Molho Tomate Bonare',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
+  {id:'p007',nome:'Orégano LESN 500g',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
+  // Laticínios e Queijos
+  {id:'p008',nome:'Coalho Jucurutu',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
+  {id:'p009',nome:'Cream Cheese Catupiry',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
+  {id:'p010',nome:'Creme de Leite Betânia',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
+  {id:'p011',nome:'Gorgonzola',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
+  {id:'p012',nome:'Muçarela',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
+  {id:'p013',nome:'Provolone Lactoual',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
+  {id:'p014',nome:'Queijo Parmesão',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
+  {id:'p015',nome:'Requeijão Polenghi',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
+  {id:'p016',nome:'Requeijão Tirolez',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
+  // Frios e Proteínas
+  {id:'p017',nome:'Apresuntado Seara',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
+  {id:'p018',nome:'Carne de sol',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
+  {id:'p019',nome:'Filé de camarão',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
+  {id:'p020',nome:'Frango',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
+  {id:'p021',nome:'Linguiça Calabresa Frimesa',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
+  {id:'p022',nome:'Pepperoni Fatiado Frimesa',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
+  // Doces e Coberturas
+  {id:'p023',nome:'Cobertura Chocolate Bom Princípio',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
+  {id:'p024',nome:'Cobertura Genuine Chocolate',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
+  {id:'p025',nome:'Creme de Avelã Nutella 3kg',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
+  {id:'p026',nome:'Doce de Leite Mu-Mu',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
+  {id:'p027',nome:'Leite Condensado Betânia',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
+  {id:'p028',nome:'Recheio Ovomaltine',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
+  // Farinhas, Massas e Panificação
+  {id:'p029',nome:'Farinha Trigo Finna',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Farinhas e Massas'},
+  {id:'p030',nome:'Fermento Fleischmann',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Farinhas e Massas'},
+  {id:'p031',nome:'Fubá Milho Mimoso Yoki',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Farinhas e Massas'},
+  // Mercearia
+  {id:'p032',nome:'Açúcar Cristal',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
+  {id:'p033',nome:'Milho Verde Bonare',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
+  {id:'p034',nome:'Óleo Soja Liza',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
+  {id:'p035',nome:'Ovo MD Vermelho 30un',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
+  // Embalagens e Descartáveis
+  {id:'p036',nome:'Copo descartável',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
+  {id:'p037',nome:'Mesinha de pizza',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
+  {id:'p038',nome:'Pote para molho',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
+  {id:'p039',nome:'Pote para salva bordas',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
+  {id:'p040',nome:'Sacola Camiseta 60x70',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
+  {id:'p041',nome:'Saco de lixo',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
+  // Bebidas
+  {id:'p042',nome:'Cajuína 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
+  {id:'p043',nome:'Cajuína lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
+  {id:'p044',nome:'Coca 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
+  {id:'p045',nome:'Coca lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
+  {id:'p046',nome:'Coca Zero 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
+  {id:'p047',nome:'Coca Zero lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
+  {id:'p048',nome:'Guaraná 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
+  {id:'p049',nome:'Guaraná lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
+  {id:'p050',nome:'Guaraná Zero lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'}
 ];
 
 let ajusteAtual = null;
@@ -855,26 +921,40 @@ function getQtyItem(itemId, restaurante) {
 function renderEstoque() {
   const busca = (document.getElementById('est-busca').value || '').toLowerCase();
   const rest = document.getElementById('est-restaurante').value;
-  let itens = E.itensEstoque || [];
-  if (busca) itens = itens.filter(i => i.nome.toLowerCase().includes(busca));
+
 
   const el = document.getElementById('estoque-lista');
   if (!itens.length) { el.innerHTML = '<div class="empty">Nenhum item encontrado.</div>'; return; }
 
-  el.innerHTML = itens.map(item => {
-    const qty = getQtyItem(item.id, rest || null);
-    const isLow = item.minimo > 0 && qty <= item.minimo;
-    const qtyDisplay = (qty % 1 === 0) ? qty.toFixed(0) : qty.toFixed(2);
-    return `<div class="estoque-item ${isLow ? 'low' : ''}" id="est-item-${item.id}">
-      <button class="qty-btn minus" onclick="abrirAjuste('${item.id}', 'saida')">−</button>
-      <div style="flex:1;padding:0 8px;">
-        <div class="estoque-nome">${item.nome}</div>
-        <div class="estoque-unidade">${item.unidade}</div>
-      </div>
-      <div class="estoque-qty ${isLow ? 'low' : ''}" id="qty-display-${item.id}">${qtyDisplay} <span style="font-size:12px;color:var(--text-hint);font-weight:400;">${item.unidade}</span></div>
-      <button class="qty-btn plus" onclick="abrirAjuste('${item.id}', 'entrada')">+</button>
+  // Group by categoria
+  const grupos = {};
+  itens.forEach(item => {
+    const cat = item.categoria || 'Outros';
+    if (!grupos[cat]) grupos[cat] = [];
+    grupos[cat].push(item);
+  });
+
+  let html = '';
+  Object.keys(grupos).sort().forEach(cat => {
+    html += `<div style="margin-bottom:1.25rem;">
+      <div style="font-size:11px;font-weight:600;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.06em;padding:0 4px;margin-bottom:8px;">${cat}</div>
+      ${grupos[cat].map(item => {
+        const qty = getQtyItem(item.id, null);
+        const isLow = item.minimo > 0 && qty <= item.minimo;
+        const qtyDisplay = (qty % 1 === 0) ? String(Math.round(qty)) : qty.toFixed(2);
+        return `<div class="estoque-item ${isLow?'low':''}" id="est-item-${item.id}">
+          <button class="qty-btn minus" onclick="abrirAjuste('${item.id}', 'saida')">−</button>
+          <div style="flex:1;padding:0 8px;">
+            <div class="estoque-nome">${item.nome}</div>
+            <div class="estoque-unidade">${item.unidade}</div>
+          </div>
+          <div class="estoque-qty ${isLow?'low':''}" id="qty-display-${item.id}">${qtyDisplay} <span style="font-size:12px;color:var(--text-hint);font-weight:400;">${item.unidade}</span></div>
+          <button class="qty-btn plus" onclick="abrirAjuste('${item.id}', 'entrada')">+</button>
+        </div>`;
+      }).join('')}
     </div>`;
-  }).join('');
+  });
+  el.innerHTML = html;
 
   // populate mov-item select
   const sel = document.getElementById('mov-item');
