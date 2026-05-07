@@ -324,6 +324,14 @@
         </select>
       </div>
       <div class="form-group" style="margin-bottom:10px;">
+        <label>Restaurante</label>
+        <select id="novo-item-restaurante"></select>
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>Categoria</label>
+        <input type="text" id="novo-item-categoria" placeholder="Ex: Proteínas e Carnes" />
+      </div>
+      <div class="form-group" style="margin-bottom:10px;">
         <label>Estoque mínimo (opcional)</label>
         <input type="number" id="novo-item-minimo" placeholder="0" min="0" step="0.01" />
       </div>
@@ -1041,18 +1049,23 @@ async function enviarMovSheet(mov) {
 function abrirModalItem() {
   document.getElementById('novo-item-nome').value = '';
   document.getElementById('novo-item-minimo').value = '';
+  document.getElementById('novo-item-categoria').value = '';
+  var selRest = document.getElementById('novo-item-restaurante');
+  selRest.innerHTML = E.restaurantes.map(function(r) { return '<option value="' + r + '">' + r + '</option>'; }).join('');
   document.getElementById('modal-novo-item').classList.add('open');
-  setTimeout(() => document.getElementById('novo-item-nome').focus(), 100);
+  setTimeout(function() { document.getElementById('novo-item-nome').focus(); }, 100);
 }
 
 function salvarNovoItem() {
-  const nome = document.getElementById('novo-item-nome').value.trim();
-  const unidade = document.getElementById('novo-item-unidade').value;
-  const minimo = parseFloat(document.getElementById('novo-item-minimo').value) || 0;
+  var nome = document.getElementById('novo-item-nome').value.trim();
+  var unidade = document.getElementById('novo-item-unidade').value;
+  var minimo = parseFloat(document.getElementById('novo-item-minimo').value) || 0;
+  var restaurante = document.getElementById('novo-item-restaurante').value;
+  var categoria = document.getElementById('novo-item-categoria').value.trim() || 'Outros';
   if (!nome) { alert('Informe o nome do item.'); return; }
   if (!E.itensEstoque) E.itensEstoque = [];
-  const id = 'i' + String(Date.now()).slice(-6);
-  E.itensEstoque.push({ id, nome, unidade, minimo });
+  var id = 'u' + String(Date.now()).slice(-6);
+  E.itensEstoque.push({ id: id, nome: nome, unidade: unidade, minimo: minimo, restaurante: restaurante, categoria: categoria });
   salvar();
   fecharModal('modal-novo-item');
   renderEstoque();
