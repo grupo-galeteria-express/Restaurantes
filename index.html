@@ -1584,6 +1584,9 @@ function abrirModalItem() {
   document.getElementById('novo-item-categoria').value = '';
   var selRest = document.getElementById('novo-item-restaurante');
   selRest.innerHTML = E.restaurantes.map(function(r) { return '<option value="' + r + '">' + r + '</option>'; }).join('');
+  // Pre-select the active filter restaurante
+  var filtroAtivo = document.getElementById('est-restaurante').value;
+  if (filtroAtivo) selRest.value = filtroAtivo;
   atualizarCatSugestoes();
   selRest.onchange = atualizarCatSugestoes;
   document.getElementById('modal-novo-item').classList.add('open');
@@ -1601,7 +1604,7 @@ function salvarNovoItem() {
   var nome = document.getElementById('novo-item-nome').value.trim();
   var unidade = document.getElementById('novo-item-unidade').value;
   var minimo = parseFloat(document.getElementById('novo-item-minimo').value) || 0;
-  var restaurante = document.getElementById('novo-item-restaurante').value;
+  var restaurante = document.getElementById('novo-item-restaurante').value; // Always use modal selection
   var categoria = document.getElementById('novo-item-categoria').value.trim() || 'Outros';
   if (!nome) { alert('Informe o nome do item.'); return; }
   if (!E.itensEstoque) E.itensEstoque = [];
