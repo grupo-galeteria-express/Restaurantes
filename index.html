@@ -732,12 +732,18 @@ async function sincronizar() {
     }
     // Load compras
     if (data5.rows && data5.rows.length > 1) {
-      E.listaCompras = data5.rows.slice(1).filter(r => r[0] && r[5] !== 'true').map(r => ({
-        id: parseInt(r[0]), itemId: String(r[1]), nomeItem: String(r[2]),
-        unidade: String(r[3]), categoria: String(r[4]), comprado: false,
-        restaurante: String(r[6]), qty: parseFloat(r[7]),
-        data: String(r[8]).slice(0,10)
-      }));
+      // Columns saved by confirmarComprar: id, itemId, nomeItem, unidade, categoria, restaurante, qty, data, comprado
+      E.listaCompras = data5.rows.slice(1).filter(r => r[0]).map(r => ({
+        id: parseInt(r[0]),
+        itemId: String(r[1]),
+        nomeItem: String(r[2]),
+        unidade: String(r[3]),
+        categoria: String(r[4]),
+        restaurante: String(r[5]),
+        qty: parseFloat(r[6]),
+        data: String(r[7]).slice(0,10),
+        comprado: String(r[8]) === 'true'
+      })).filter(c => !c.comprado);
     }
     salvar();
     showSB('Sincronizado!', 'ok');
