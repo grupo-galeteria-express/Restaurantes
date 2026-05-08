@@ -461,6 +461,24 @@ async function sincronizar() {
       renderEstoque();
       renderMovHoje();
     }
+    // Load compras
+    try {
+      var resC = await fetch(SCRIPT_URL + '?sheet=compras&t=' + Date.now());
+      var dataC = await resC.json();
+      if (dataC.rows && dataC.rows.length > 1) {
+        E.listaCompras = dataC.rows.slice(1).filter(function(r) {
+          return r[0] && String(r[8]) !== 'true';
+        }).map(function(r) {
+          return {
+            id: parseInt(r[0]), itemId: String(r[1]), nomeItem: String(r[2]),
+            unidade: String(r[3]), categoria: String(r[4]), restaurante: String(r[5]),
+            qty: parseFloat(r[6]), data: String(r[7]).slice(0,10), comprado: false
+          };
+        });
+        salvar();
+        renderComprasFunc();
+      }
+    } catch(e) {}
     const agora = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
     document.getElementById('ultima-atualizacao').textContent = 'Atualizado às ' + agora;
   } catch(e) {
