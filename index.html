@@ -145,6 +145,17 @@
   .prio-baixa { background: var(--green-bg); color: var(--green-text); }
   .pend-data { font-size: 11px; color: var(--text-hint); }
   .pend-rest { font-size: 11px; color: var(--text-hint); }
+
+  /* Compras */
+  .compra-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
+  .compra-nome-text { font-size: 14px; font-weight: 500; color: var(--text); }
+  .compra-sub { font-size: 11px; color: var(--text-hint); margin-top: 2px; }
+  .compra-qty { font-size: 15px; font-weight: 500; font-family: var(--mono); color: var(--brand); min-width: 80px; text-align: right; }
+  .btn-comprado { background: var(--green); color: white; border: none; border-radius: var(--radius-sm); padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--font); white-space: nowrap; }
+  .btn-comprar { background: var(--brand-bg,#FFF1EC); color: var(--brand); border: 1px solid var(--brand); border-radius: var(--radius-sm); padding: 4px 10px; font-size: 11px; font-weight: 500; cursor: pointer; font-family: var(--font); white-space: nowrap; flex-shrink: 0; }
+  .btn-comprar:hover { background: var(--brand); color: white; }
+  .compras-section { margin-bottom: 1.5rem; }
+  .compras-section-title { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
   @media (max-width: 600px) { .main { padding: 1rem; } .form-row { grid-template-columns: 1fr; } .metric-grid { grid-template-columns: 1fr 1fr; } }
 </style>
 </head>
@@ -163,6 +174,7 @@
     <button class="tab" onclick="setTab('estoque')">Estoque</button>
     <button class="tab" onclick="setTab('pendencias')">Pendências</button>
     <button class="tab" onclick="setTab('relatorios')">Relatórios</button>
+    <button class="tab" onclick="setTab('compras')">Compras</button>
     <button class="tab" onclick="setTab('config')">Config</button>
   </div>
 </div>
@@ -302,6 +314,26 @@
     </div>
   </div>
 
+
+  <!-- MODAL COMPRAR -->
+  <div class="modal-overlay" id="modal-comprar">
+    <div class="modal">
+      <div class="modal-title" id="modal-comprar-title">Adicionar à lista de compras</div>
+      <input type="hidden" id="modal-comprar-item-id" />
+      <div class="form-group" style="margin-bottom:10px;">
+        <label>Quantidade necessária</label>
+        <input type="text" id="modal-comprar-qty" inputmode="decimal" placeholder="0" />
+      </div>
+      <div class="form-group" style="margin-bottom:10px;" id="modal-comprar-rest-grupo">
+        <label>Restaurante</label>
+        <select id="modal-comprar-rest"></select>
+      </div>
+      <div class="modal-btns">
+        <button class="btn btn-primary" style="flex:1;" onclick="confirmarComprar()">Adicionar à lista</button>
+        <button class="btn btn-ghost" onclick="fecharModal('modal-comprar')">Cancelar</button>
+      </div>
+    </div>
+  </div>
   <!-- MODAL AJUSTE -->
   <div class="modal-overlay" id="modal-ajuste">
     <div class="modal">
@@ -418,6 +450,16 @@
     <div id="lista-concluidas"></div>
   </div>
 
+
+  <!-- COMPRAS -->
+  <div id="panel-compras" class="panel">
+    <div class="filter-row">
+      <select id="comp-filtro-rest" onchange="renderCompras()" style="height:34px;font-size:13px;">
+        <option value="">Todos os restaurantes</option>
+      </select>
+    </div>
+    <div id="lista-compras-content"></div>
+  </div>
   <!-- RELATÓRIOS -->
   <div id="panel-relatorios" class="panel">
     <div class="card">
@@ -605,16 +647,18 @@ async function sincronizar() {
   icon.style.animation = 'spin 0.7s linear infinite';
   showSB('Sincronizando...', 'info');
   try {
-    const [res1, res2, res3, res4] = await Promise.all([
+    const [res1, res2, res3, res4, res5] = await Promise.all([
       fetch(SCRIPT_URL + '?t=' + Date.now()),
       fetch(SCRIPT_URL + '?sheet=movimentacoes&t=' + Date.now()),
       fetch(SCRIPT_URL + '?sheet=pendencias&t=' + Date.now()),
-      fetch(SCRIPT_URL + '?sheet=config&t=' + Date.now())
+      fetch(SCRIPT_URL + '?sheet=config&t=' + Date.now()),
+      fetch(SCRIPT_URL + '?sheet=compras&t=' + Date.now())
     ]);
     const data1 = await res1.json();
     const data2 = await res2.json();
     const data3 = await res3.json();
     const data4 = await res4.json();
+    const data5 = await res5.json();
     if (data1.rows && data1.rows.length > 1) {
       E.lancamentos = data1.rows.slice(1).filter(r => r[0]).map(r => ({
         id: parseInt(r[0]),
@@ -686,6 +730,15 @@ async function sincronizar() {
         try { CATS_PADRAO = {...CATS_PADRAO, ...JSON.parse(cfg.catsEstoque)}; } catch(e) {}
       }
     }
+    // Load compras
+    if (data5.rows && data5.rows.length > 1) {
+      E.listaCompras = data5.rows.slice(1).filter(r => r[0] && r[5] !== 'true').map(r => ({
+        id: parseInt(r[0]), itemId: String(r[1]), nomeItem: String(r[2]),
+        unidade: String(r[3]), categoria: String(r[4]), comprado: false,
+        restaurante: String(r[6]), qty: parseFloat(r[7]),
+        data: String(r[8]).slice(0,10)
+      }));
+    }
     salvar();
     showSB('Sincronizado!', 'ok');
     setTimeout(() => showSB('',''), 3000);
@@ -704,6 +757,7 @@ function setTab(t) {
   if (t === 'estoque') { populateEstRestaurantes(); renderEstoque(); renderMovimentacoes(); }
   if (t === 'pendencias') { populatePendRest(); renderPendencias(); }
   if (t === 'relatorios') { initRelatorios(); }
+  if (t === 'compras') { populateComprasFiltro(); renderCompras(); }
 }
 
 const TIPOS = ['receita','deducao','compra','despesa_var','despesa_fix','despesa_fin','investimento','despesa_pes'];
@@ -1052,6 +1106,7 @@ async function deletarMov(id) {
   renderEstoque();
   renderMovimentacoes();
   populatePendRest();
+  populateComprasFiltro();
   showSB('Movimentação cancelada.', 'ok');
   setTimeout(() => showSB('',''), 2000);
 }
@@ -1316,7 +1371,7 @@ function renderPendencias() {
   elC.innerHTML = concluidas.length ? concluidas.map(pendItemHTML).join('') : '<div class="empty" style="padding:1rem;">Nenhuma pendência concluída ainda.</div>';
 }
 
-function renderAll() { renderMetricas(); renderHoje(); renderHist(); renderDRE(); renderConfig(); renderPendencias(); }
+function renderAll() { renderMetricas(); renderHoje(); renderHist(); renderDRE(); renderConfig(); renderPendencias(); renderCompras(); }
 
 
 // ============ ESTOQUE ============
@@ -1487,6 +1542,7 @@ function renderEstoque() {
       catHtml += '</div>';
       catHtml += '<div class="estoque-qty' + lowClass + '" id="qty-display-' + item.id + '">' + qtyDisplay + ' <span style="font-size:12px;color:#9E9E99;font-weight:400;">' + item.unidade + '</span></div>';
       catHtml += '<button class="qty-btn plus" data-id="' + item.id + '" data-tipo="entrada" onclick="abrirAjusteBtn(this)">+</button>';
+      catHtml += '<button class="btn-comprar" data-id="' + item.id + '" onclick="abrirComprarBtn(this)">Comprar</button>';
       catHtml += '</div>';
     }
     html += '<div style="margin-bottom:1.25rem;">';
@@ -1679,6 +1735,126 @@ function abrirAjusteBtn(btn) {
   abrirAjuste(id, tipo);
 }
 
+
+// ── LISTA DE COMPRAS ──
+function initCompras() {
+  if (!E.listaCompras) E.listaCompras = [];
+}
+
+function abrirComprarBtn(btn) {
+  var id = btn.getAttribute('data-id');
+  abrirModalComprar(id);
+}
+
+function abrirModalComprar(itemId) {
+  var item = (E.itensEstoque||[]).find(function(i) { return i.id === itemId; });
+  if (!item) return;
+  document.getElementById('modal-comprar-title').textContent = 'Comprar — ' + item.nome;
+  document.getElementById('modal-comprar-item-id').value = itemId;
+  document.getElementById('modal-comprar-qty').value = '';
+  var selRest = document.getElementById('modal-comprar-rest');
+  selRest.innerHTML = E.restaurantes.map(function(r) { return '<option value="' + r + '">' + r + '</option>'; }).join('');
+  var filtroAtivo = document.getElementById('est-restaurante').value;
+  var preSelect = filtroAtivo || item.restaurante;
+  if (preSelect) selRest.value = preSelect;
+  var grupoRest = document.getElementById('modal-comprar-rest-grupo');
+  if (grupoRest) grupoRest.style.display = filtroAtivo ? 'none' : '';
+  document.getElementById('modal-comprar').classList.add('open');
+  setTimeout(function() { document.getElementById('modal-comprar-qty').focus(); }, 100);
+}
+
+async function confirmarComprar() {
+  var itemId = document.getElementById('modal-comprar-item-id').value;
+  var qty = parseFloat(String(document.getElementById('modal-comprar-qty').value).replace(',','.'));
+  var rest = document.getElementById('modal-comprar-rest').value;
+  if (!qty || qty <= 0) { alert('Informe a quantidade.'); return; }
+  var item = (E.itensEstoque||[]).find(function(i) { return i.id === itemId; });
+  if (!item) return;
+  var compra = {
+    id: Date.now(),
+    itemId: itemId,
+    nomeItem: item.nome,
+    unidade: item.unidade,
+    categoria: item.categoria || '',
+    restaurante: rest,
+    qty: qty,
+    data: new Date().toISOString().slice(0,10),
+    comprado: false
+  };
+  if (!E.listaCompras) E.listaCompras = [];
+  E.listaCompras.push(compra);
+  salvar();
+  fecharModal('modal-comprar');
+  renderCompras();
+  showSB('Adicionado à lista de compras!', 'ok');
+  setTimeout(function() { showSB('',''); }, 2500);
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({...compra, sheet: 'compras'}) });
+  } catch(e) {}
+}
+
+async function marcarComprado(id) {
+  if (!confirm('Marcar como comprado e remover da lista?')) return;
+  E.listaCompras = (E.listaCompras||[]).filter(function(c) { return c.id !== id; });
+  salvar();
+  renderCompras();
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action:'delete', sheet:'compras', id}) });
+  } catch(e) {}
+}
+
+function renderCompras() {
+  var filtroRest = document.getElementById('comp-filtro-rest') ? document.getElementById('comp-filtro-rest').value : '';
+  var itens = (E.listaCompras||[]).filter(function(c) {
+    return !c.comprado && (!filtroRest || c.restaurante === filtroRest);
+  });
+  var el = document.getElementById('lista-compras-content');
+  if (!el) return;
+  if (!itens.length) {
+    el.innerHTML = '<div class="empty">Nenhum item na lista de compras. 🎉</div>';
+    return;
+  }
+  var grupos = {};
+  itens.forEach(function(c) {
+    if (!grupos[c.restaurante]) grupos[c.restaurante] = [];
+    grupos[c.restaurante].push(c);
+  });
+  var html = '';
+  Object.keys(grupos).sort().forEach(function(rest) {
+    var itensRest = grupos[rest];
+    var cats = {};
+    itensRest.forEach(function(c) {
+      var cat = c.categoria || 'Outros';
+      if (!cats[cat]) cats[cat] = [];
+      cats[cat].push(c);
+    });
+    html += '<div class="compras-section">';
+    html += '<div class="compras-section-title">' + rest + ' <span style="font-size:11px;background:var(--brand);color:white;padding:2px 8px;border-radius:20px;">' + itensRest.length + ' itens</span></div>';
+    Object.keys(cats).sort().forEach(function(cat) {
+      html += '<div style="font-size:11px;color:var(--text-hint);text-transform:uppercase;letter-spacing:0.05em;margin:8px 0 4px 2px;">' + cat + '</div>';
+      cats[cat].forEach(function(c) {
+        var qtyDisplay = (c.qty % 1 === 0) ? String(Math.round(c.qty)) : c.qty.toFixed(2);
+        html += '<div class="compra-item">';
+        html += '<div style="flex:1;"><div class="compra-nome-text">' + c.nomeItem + '</div><div class="compra-sub">' + c.data.split("-").reverse().join("/") + '</div></div>';
+        html += '<div class="compra-qty">' + qtyDisplay + ' ' + c.unidade + '</div>';
+        html += '<button class="btn-comprado" onclick="marcarComprado(' + c.id + ')">✓ Comprado</button>';
+        html += '</div>';
+      });
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function populateComprasFiltro() {
+  var sel = document.getElementById('comp-filtro-rest');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Todos os restaurantes</option>';
+  E.restaurantes.forEach(function(r) {
+    sel.innerHTML += '<option value="' + r + '">' + r + '</option>';
+  });
+}
+
 function init() {
   carregar();
   const hoje = new Date().toISOString().slice(0,10);
@@ -1691,6 +1867,7 @@ function init() {
   document.getElementById('mes-cob').value = pm.toISOString().slice(0,7);
   initEstoque();
   initPendencias();
+  initCompras();
   setTipo('receita');
   populateRests();
   populateEstRestaurantes();
@@ -1699,6 +1876,7 @@ function init() {
   renderEstoque();
   renderMovimentacoes();
   populatePendRest();
+  populateComprasFiltro();
   const movMes = new Date().toISOString().slice(0,7);
   document.getElementById('mov-mes').value = movMes;
   sincronizar();
