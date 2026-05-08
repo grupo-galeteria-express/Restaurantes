@@ -70,6 +70,14 @@
   .mov-table th { font-size: 11px; color: var(--text-hint); text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.05em; }
   .mov-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
   .mov-table tr:last-child td { border-bottom: none; }
+
+  .btn-comprar { background: #FFF1EC; color: var(--brand); border: 1px solid var(--brand); border-radius: var(--radius-sm); padding: 4px 10px; font-size: 11px; font-weight: 500; cursor: pointer; font-family: var(--font); white-space: nowrap; flex-shrink: 0; }
+  .btn-comprar:hover { background: var(--brand); color: white; }
+  .compra-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
+  .compra-nome-text { font-size: 14px; font-weight: 500; }
+  .compra-sub { font-size: 11px; color: var(--text-hint); margin-top: 2px; }
+  .compra-qty { font-size: 15px; font-weight: 500; font-family: var(--mono); color: var(--brand); min-width: 80px; text-align: right; }
+  .btn-comprado { background: var(--green); color: white; border: none; border-radius: var(--radius-sm); padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--font); }
 </style>
 </head>
 <body>
@@ -123,6 +131,28 @@
       <button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>
     </div>
   </div>
+
+<div style="margin-top:1.5rem;">
+  <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Minha lista de compras</div>
+  <div id="lista-compras-func"></div>
+</div>
+
+<!-- MODAL COMPRAR -->
+<div class="modal-overlay" id="modal-comprar">
+  <div class="modal">
+    <div class="modal-title" id="modal-comprar-title">Adicionar à lista</div>
+    <input type="hidden" id="modal-comprar-item-id" />
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>Quantidade necessária</label>
+      <input type="text" id="modal-comprar-qty" inputmode="decimal" placeholder="0" style="width:100%;" />
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmarComprar()">Adicionar</button>
+      <button class="btn btn-ghost" onclick="fecharModal('modal-comprar')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <script>
@@ -308,6 +338,7 @@ function renderEstoque() {
       catHtml += '</div>';
       catHtml += '<div class="estoque-qty' + lowClass + '" id="qty-' + item.id + '">' + qtyDisplay + ' <span style="font-size:12px;color:#9E9E99;font-weight:400;">' + item.unidade + '</span></div>';
       catHtml += '<button class="qty-btn plus" data-id="' + item.id + '" data-tipo="entrada" onclick="abrirAjusteBtn(this)">+</button>';
+      catHtml += '<button class="btn-comprar" data-id="' + item.id + '" onclick="abrirComprarBtnFunc(this)">Comprar</button>';
       catHtml += '</div>';
     }
     html += '<div style="margin-bottom:1.25rem;">';
@@ -444,11 +475,74 @@ function abrirAjusteBtn(btn) {
   abrirAjuste(id, tipo);
 }
 
+
+function abrirComprarBtnFunc(btn) {
+  var id = btn.getAttribute('data-id');
+  var item = (E.itensEstoque||[]).find(function(i) { return i.id === id; });
+  if (!item) return;
+  document.getElementById('modal-comprar-title').textContent = 'Comprar — ' + item.nome;
+  document.getElementById('modal-comprar-item-id').value = id;
+  document.getElementById('modal-comprar-qty').value = '';
+  document.getElementById('modal-comprar').classList.add('open');
+  setTimeout(function() { document.getElementById('modal-comprar-qty').focus(); }, 100);
+}
+
+async function confirmarComprar() {
+  var itemId = document.getElementById('modal-comprar-item-id').value;
+  var qty = parseFloat(String(document.getElementById('modal-comprar-qty').value).replace(',','.'));
+  if (!qty || qty <= 0) { alert('Informe a quantidade.'); return; }
+  var item = (E.itensEstoque||[]).find(function(i) { return i.id === itemId; });
+  if (!item) return;
+  var rest = document.getElementById('filtro-rest').value || item.restaurante;
+  var compra = {
+    id: Date.now(), itemId: itemId, nomeItem: item.nome,
+    unidade: item.unidade, categoria: item.categoria || '',
+    restaurante: rest, qty: qty,
+    data: new Date().toISOString().slice(0,10), comprado: false
+  };
+  if (!E.listaCompras) E.listaCompras = [];
+  E.listaCompras.push(compra);
+  salvar();
+  fecharModal('modal-comprar');
+  renderComprasFunc();
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({...compra, sheet: 'compras'}) });
+  } catch(e) {}
+}
+
+async function marcarComprado(id) {
+  if (!confirm('Marcar como comprado?')) return;
+  E.listaCompras = (E.listaCompras||[]).filter(function(c) { return c.id !== id; });
+  salvar();
+  renderComprasFunc();
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action:'delete', sheet:'compras', id}) });
+  } catch(e) {}
+}
+
+function renderComprasFunc() {
+  var el = document.getElementById('lista-compras-func');
+  if (!el) return;
+  var itens = (E.listaCompras||[]).filter(function(c) { return !c.comprado; });
+  if (!itens.length) { el.innerHTML = '<div style="text-align:center;padding:1rem;color:#9E9E99;font-size:13px;">Nenhum item na lista.</div>'; return; }
+  var html = itens.map(function(c) {
+    var qd = (c.qty % 1 === 0) ? String(Math.round(c.qty)) : c.qty.toFixed(2);
+    return '<div class="compra-item">' +
+      '<div style="flex:1;"><div class="compra-nome-text">' + c.nomeItem + '</div><div class="compra-sub">' + c.restaurante + '</div></div>' +
+      '<div class="compra-qty">' + qd + ' ' + c.unidade + '</div>' +
+      '<button class="btn-comprado" onclick="marcarComprado(' + c.id + ')">✓</button>' +
+    '</div>';
+  }).join('');
+  el.innerHTML = html;
+}
+
 function init() {
   carregar();
   populateRests();
   renderEstoque();
   renderMovHoje();
+  if (!E.listaCompras) E.listaCompras = [];
+  renderComprasFunc();
   sincronizar();
   setInterval(sincronizar, 2 * 60 * 1000);
 }
