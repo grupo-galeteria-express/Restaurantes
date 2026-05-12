@@ -25,6 +25,8 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  .main { display: block !important; }
+  #estoque-lista, #lista-compras-func { width: 100% !important; float: none !important; }
   .header { background: var(--brand); border-bottom: none; padding: 0 1.25rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(230,48,0,0.25); }
   .header-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
   .logo { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; color: white; display: flex; align-items: center; gap: 8px; }
@@ -54,7 +56,7 @@
   .btn-primary:hover { background: var(--brand-dark); }
   .btn-ghost { background: none; border: 1px solid var(--border-strong); color: var(--text-muted); }
   .empty { text-align: center; padding: 3rem; color: var(--text-hint); font-size: 13px; }
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; overflow: hidden; }
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100% !important; height: 100% !important; background: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; }
   .modal-overlay.open { display: flex; }
   .modal { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; width: 100%; max-width: 380px; position: relative; z-index: 10000; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
   .modal-title { font-size: 16px; font-weight: 500; margin-bottom: 1.25rem; }
@@ -132,10 +134,7 @@
     </div>
   </div>
 
-<div style="margin-top:1.5rem;">
-  <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Minha lista de compras</div>
-  <div id="lista-compras-func"></div>
-</div>
+
 
 <!-- MODAL COMPRAR -->
 <div class="modal-overlay" id="modal-comprar" onclick="if(event.target===this)fecharModal('modal-comprar')">
