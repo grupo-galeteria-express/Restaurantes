@@ -54,9 +54,9 @@
   .btn-primary:hover { background: var(--brand-dark); }
   .btn-ghost { background: none; border: 1px solid var(--border-strong); color: var(--text-muted); }
   .empty { text-align: center; padding: 3rem; color: var(--text-hint); font-size: 13px; }
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 999; align-items: center; justify-content: center; padding: 1rem; -webkit-overflow-scrolling: touch; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; width: 100%; max-width: 380px; }
+  .modal { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; width: 100%; max-width: 380px; position: relative; z-index: 1000; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
   .modal-title { font-size: 16px; font-weight: 500; margin-bottom: 1.25rem; }
   .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
   .form-group label { font-size: 12px; color: var(--text-muted); }
@@ -389,6 +389,15 @@ function abrirAjuste(itemId, tipo) {
 
   const selRest = document.getElementById('modal-rest');
   selRest.innerHTML = RESTAURANTES.map(r => `<option value="${r}">${r}</option>`).join('');
+
+  // Pre-select from filter or item restaurante
+  const filtroAtivo = document.getElementById('filtro-rest').value;
+  const preSelect = filtroAtivo || item.restaurante;
+  if (preSelect) selRest.value = preSelect;
+
+  // Hide restaurante field if filter is active
+  const grupoRest = document.getElementById('modal-rest-grupo');
+  if (grupoRest) grupoRest.style.display = filtroAtivo ? 'none' : '';
 
   document.getElementById('modal-ajuste').classList.add('open');
   setTimeout(() => document.getElementById('modal-qty').focus(), 150);
