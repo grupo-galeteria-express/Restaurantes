@@ -172,6 +172,7 @@
     <button class="tab" onclick="setTab('compras')">Lista de Compras</button>
   </div>
 </div>
+</div>
 <div class="main">
   <div id="sb"></div>
 
@@ -283,9 +284,7 @@
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <input type="text" id="est-busca" placeholder="Buscar item..." onInput="renderEstoque()" style="height:34px;font-size:13px;width:180px;" />
-        <select id="est-restaurante" onchange="renderEstoque()" style="display:none;">
-          <option value="Galeteria Express" selected>Galeteria Express</option>
-        </select>
+        <select id="est-restaurante" style="display:none;"><option value="Galeteria Express" selected>Galeteria Express</option></select>
       </div>
       <button class="btn btn-primary" style="height:34px;font-size:13px;" onclick="abrirModalItem()">+ Novo item</button>
     </div>
@@ -448,9 +447,7 @@
   <!-- COMPRAS -->
   <div id="panel-compras" class="panel">
     <div class="filter-row">
-      <select id="comp-filtro-rest" onchange="renderCompras()" style="display:none;">
-        <option value="Galeteria Express" selected>Galeteria Express</option>
-      </select>
+      <select id="comp-filtro-rest" style="display:none;"><option value="Galeteria Express" selected>Galeteria Express</option></select>
     </div>
     <div id="lista-compras-content"></div>
   </div>
@@ -1886,13 +1883,11 @@ function init() {
   initCompras();
   setTipo('receita');
   populateRests();
-  // Start on estoque tab
-  setTab('estoque');
-  // Pre-filter to this restaurant
-  document.getElementById('est-restaurante').value = 'Galeteria Express';
-  renderEstoque();
   populateEstRestaurantes();
   populateCats();
+  setTab('estoque');
+  document.getElementById('est-restaurante').value = 'Galeteria Express';
+  document.getElementById('comp-filtro-rest').value = 'Galeteria Express';
   renderAll();
   renderEstoque();
   renderMovimentacoes();
