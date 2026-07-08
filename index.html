@@ -1162,13 +1162,25 @@ function addCatEstoque() {
 }
 
 function remCatEstoque(cat) {
-  if (!confirm('Excluir categoria "' + cat + '"? Os itens dessa categoria ficarão sem categoria.')) return;
+  var itensNaCat = (E.itensEstoque||[]).filter(function(i) { return i.restaurante === estRestAtual && i.categoria === cat; });
+  var msg = 'Excluir categoria "' + cat + '" e todos os seus ' + itensNaCat.length + ' itens? Esta ação não pode ser desfeita.';
+  if (!confirm(msg)) return;
+  // Remove all items in this category
+  E.itensEstoque = (E.itensEstoque||[]).filter(function(i) {
+    return !(i.restaurante === estRestAtual && i.categoria === cat);
+  });
+  // Remove from CATS_PADRAO
   if (CATS_PADRAO[estRestAtual]) {
     CATS_PADRAO[estRestAtual] = CATS_PADRAO[estRestAtual].filter(function(c) { return c !== cat; });
   }
+  // Add to blacklist
+  if (!E.catsExcluidas) E.catsExcluidas = {};
+  if (!E.catsExcluidas[estRestAtual]) E.catsExcluidas[estRestAtual] = [];
+  if (!E.catsExcluidas[estRestAtual].includes(cat)) E.catsExcluidas[estRestAtual].push(cat);
   salvar();
   salvarConfig();
   renderCatsEstoque();
+  renderEstoque();
 }
 
 
@@ -1659,13 +1671,14 @@ var CATS_PADRAO = {
 };
 
 function getCatsDoRestaurante(rest) {
+  var excluidas = (E.catsExcluidas && E.catsExcluidas[rest]) || [];
   var cats = {};
   // Add default/custom categories from CATS_PADRAO
   var padrao = CATS_PADRAO[rest] || [];
-  padrao.forEach(function(c) { cats[c] = true; });
-  // Add any custom categories from existing items
+  padrao.forEach(function(c) { if (!excluidas.includes(c)) cats[c] = true; });
+  // Add any custom categories from existing items (not excluded)
   (E.itensEstoque || []).forEach(function(i) {
-    if (i.restaurante === rest && i.categoria) cats[i.categoria] = true;
+    if (i.restaurante === rest && i.categoria && !excluidas.includes(i.categoria)) cats[i.categoria] = true;
   });
   return Object.keys(cats).sort();
 }
