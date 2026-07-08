@@ -1582,14 +1582,9 @@ function abrirAjuste(itemId, tipo) {
   const sel = document.getElementById('modal-restaurante');
   sel.innerHTML = E.restaurantes.map(r => `<option value="${r}">${r}</option>`).join('');
 
-  // Pre-select from item's restaurante or active filter
-  const filtroAtivo = document.getElementById('est-restaurante').value;
-  const preSelect = filtroAtivo || item.restaurante;
-  if (preSelect) sel.value = preSelect;
-
-  // Hide restaurante field if filter is active
+  sel.value = 'Seu Antonio Pizzaria';
   const grupoRest = document.getElementById('modal-ajuste-rest-grupo');
-  if (grupoRest) grupoRest.style.display = filtroAtivo ? 'none' : '';
+  if (grupoRest) grupoRest.style.display = 'none';
 
   document.getElementById('modal-ajuste').classList.add('open');
   setTimeout(() => document.getElementById('modal-qty').focus(), 100);
@@ -1766,12 +1761,10 @@ function abrirModalComprar(itemId) {
   document.getElementById('modal-comprar-item-id').value = itemId;
   document.getElementById('modal-comprar-qty').value = '';
   var selRest = document.getElementById('modal-comprar-rest');
-  selRest.innerHTML = E.restaurantes.map(function(r) { return '<option value="' + r + '">' + r + '</option>'; }).join('');
-  var filtroAtivo = document.getElementById('est-restaurante').value;
-  var preSelect = filtroAtivo || item.restaurante;
-  if (preSelect) selRest.value = preSelect;
+  selRest.innerHTML = '<option value="Seu Antonio Pizzaria" selected>Seu Antonio Pizzaria</option>';
+  selRest.value = 'Seu Antonio Pizzaria';
   var grupoRest = document.getElementById('modal-comprar-rest-grupo');
-  if (grupoRest) grupoRest.style.display = filtroAtivo ? 'none' : '';
+  if (grupoRest) grupoRest.style.display = 'none';
   document.getElementById('modal-comprar').classList.add('open');
   setTimeout(function() { document.getElementById('modal-comprar-qty').focus(); }, 100);
 }
@@ -1865,6 +1858,41 @@ function populateComprasFiltro() {
   E.restaurantes.forEach(function(r) {
     sel.innerHTML += '<option value="' + r + '">' + r + '</option>';
   });
+}
+
+
+async function zerarQuantidades() {
+  if (!confirm('Zerar todas as quantidades do estoque? Isso lançará uma correção para cada item com saldo.')) return;
+  var hoje = new Date().toISOString().slice(0,10);
+  var itens = (E.itensEstoque||[]).filter(function(i) { return i.restaurante === 'Seu Antonio Pizzaria'; });
+  var zerados = 0;
+  showSB('Zerando quantidades...', 'info');
+  for (var i = 0; i < itens.length; i++) {
+    var item = itens[i];
+    var qty = getQtyItem(item.id, null);
+    if (qty > 0) {
+      var mov = {
+        id: Date.now() + i,
+        itemId: item.id,
+        restaurante: 'Seu Antonio Pizzaria',
+        motivo: 'inventario',
+        qty: qty,
+        data: hoje,
+        timestamp: new Date().toISOString(),
+        sheet: 'movimentacoes'
+      };
+      E.movimentacoes.push(mov);
+      try {
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(mov) });
+      } catch(e) {}
+      zerados++;
+    }
+  }
+  salvar();
+  renderEstoque();
+  renderMovimentacoes ? renderMovimentacoes() : null;
+  showSB('Quantidades zeradas! ' + zerados + ' itens atualizados.', 'ok');
+  setTimeout(function() { showSB('',''); }, 3000);
 }
 
 function init() {
