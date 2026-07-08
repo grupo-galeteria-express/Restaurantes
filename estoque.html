@@ -709,12 +709,11 @@ async function sincronizar() {
       if (cfg.itensEstoque) {
         try {
           const savedItens = JSON.parse(cfg.itensEstoque);
-          // Merge: keep existing + add new ones
-          savedItens.forEach(function(si) {
-            if (!E.itensEstoque.find(i => i.id === si.id)) {
-              E.itensEstoque.push(si);
-            }
-          });
+          // Always use server version filtered to this restaurant
+          const meusItens = savedItens.filter(function(i) { return i.restaurante === 'Galeteria Express'; });
+          if (meusItens.length > 0) {
+            E.itensEstoque = meusItens;
+          }
         } catch(e) {}
       }
       if (cfg.catsEstoque) {
