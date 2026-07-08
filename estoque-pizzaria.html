@@ -734,7 +734,7 @@ async function sincronizar() {
         qty: parseFloat(r[6]),
         data: String(r[7]).slice(0,10),
         comprado: String(r[8]) === 'true'
-      })).filter(c => !c.comprado);
+      })).filter(c => !c.comprado && c.restaurante === 'Seu Antonio Pizzaria');
     }
     salvar();
     showSB('Sincronizado!', 'ok');
@@ -1816,10 +1816,9 @@ async function marcarComprado(id) {
   } catch(e) {}
 }
 
-function renderCompras() {
-  var filtroRest = document.getElementById('comp-filtro-rest') ? document.getElementById('comp-filtro-rest').value : '';
+function renderCompras() {  var filtroRest = 'Seu Antonio Pizzaria';
   var itens = (E.listaCompras||[]).filter(function(c) {
-    return !c.comprado && (!filtroRest || c.restaurante === filtroRest);
+    return !c.comprado && c.restaurante === filtroRest;
   });
   var el = document.getElementById('lista-compras-content');
   if (!el) return;
