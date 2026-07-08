@@ -124,9 +124,9 @@
   .mov-table th.r { text-align: right; }
   .mov-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); }
   .mov-table td.r { text-align: right; font-family: var(--mono); }
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 999; align-items: center; justify-content: center; padding: 1rem; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; width: 90%; max-width: 380px; }
+  .modal { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; width: 90%; max-width: 380px; position: relative; z-index: 1000; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
   .modal-title { font-size: 15px; font-weight: 500; margin-bottom: 1rem; }
   .modal-btns { display: flex; gap: 8px; margin-top: 1rem; }
 
@@ -1382,120 +1382,136 @@ function renderAll() { renderMetricas(); renderHoje(); renderHist(); renderDRE()
 
 // ============ ESTOQUE ============
 const ITENS_INICIAIS = [
-  // GALETERIA EXPRESS
-  // Proteínas e Carnes
-  {id:'g001',nome:'Carne de sol',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g002',nome:'Carne moída',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g003',nome:'Carne bife',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g004',nome:'Maminha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g005',nome:'Peito de frango',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g006',nome:'Frango panqueca',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g007',nome:'Filé de peixe',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g008',nome:'Calabresa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g009',nome:'Bacon',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g010',nome:'Presunto',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  // Laticínios e Queijos
-  {id:'g011',nome:'Mussarela',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g012',nome:'Provolone',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g013',nome:'Gorgonzola',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g014',nome:'Parmesão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g015',nome:'Creme de leite',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g016',nome:'Leite',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g017',nome:'Catupiry',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g018',nome:'Creme do sertão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g019',nome:'Maionese',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
+  // ── GALETERIA EXPRESS ──────────────────────────────────────────
+  // Proteínas e Congelados
+  {id:'g001',nome:'Frango inteiro c/ miúdos congelado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g002',nome:'Carne de sol',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g003',nome:'Bife de coxão duro',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g004',nome:'Linguiça churrasco',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g005',nome:'Maminha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g006',nome:'Filé de peito de frango',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g007',nome:'Filé de tilápia',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g008',nome:'Batata palito congelada',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g009',nome:'Batata pré-frita McCain One Fry',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
   // Hortifruti
-  {id:'g020',nome:'Tomate',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g021',nome:'Cenoura',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g022',nome:'Batata inglesa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g023',nome:'Batata palito',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g024',nome:'Batata palha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g025',nome:'Cebola',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g026',nome:'Macaxeira',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g027',nome:'Alho',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g028',nome:'Salsa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g029',nome:'Manjericão',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g030',nome:'Feijão verde',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  // Massas e Farinhas
-  {id:'g031',nome:'Arroz',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g032',nome:'Feijão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g033',nome:'Macarrão',unidade:'gramas',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g034',nome:'Massa lasanha',unidade:'gramas',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g035',nome:'Macarrão fettuccine',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g036',nome:'Farinha de trigo',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g037',nome:'Farinha de rosca',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  // Molhos e Temperos
-  {id:'g038',nome:'Molho barbecue',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Temperos'},
-  {id:'g039',nome:'Molho cheddar',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Temperos'},
-  {id:'g040',nome:'Manteiga da terra',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Temperos'},
-  // Mercearia
-  {id:'g041',nome:'Açúcar',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Mercearia'},
-  // SEU ANTONIO PIZZARIA
+  {id:'g010',nome:'Batata inglesa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g011',nome:'Tomate',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g012',nome:'Cenoura',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g013',nome:'Repolho branco',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g014',nome:'Cebolinha',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g015',nome:'Coentro',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g016',nome:'Uva Vitória sem semente',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g017',nome:'Salsinha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g018',nome:'Ervas finas',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g019',nome:'Alho descascado congelado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  // Secos e Mercearia
+  {id:'g020',nome:'Arroz branco tipo 1',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g021',nome:'Arroz parboilizado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g022',nome:'Pasta de alho',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g023',nome:'Sal moído',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g024',nome:'Açúcar cristal',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g025',nome:'Farinha de trigo s/ fermento',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g026',nome:'Macarrão espaguete',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g027',nome:'Farinha de mandioca amarela',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g028',nome:'Farinha de mandioca branca',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g029',nome:'Farinha panko',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g030',nome:'Batata palha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g031',nome:'Colorífico',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g032',nome:'Amaciante de carne',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g033',nome:'Caldo de carne 1,01kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g034',nome:'Caldo de galinha 1,01kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g035',nome:'Caldo de legumes 1,01kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  // Laticínios, Frios e Gorduras
+  {id:'g036',nome:'Creme do sertão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g037',nome:'Mussarela fatiada',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g038',nome:'Presunto fatiado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g039',nome:'Gordura de palma',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g040',nome:'Leite UHT integral',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g041',nome:'Manteiga da terra',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g042',nome:'Mistura creme de leite 200g',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g043',nome:'Creme culinário 1kg',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g044',nome:'Óleo de soja',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
   // Molhos e Condimentos
-  {id:'p001',nome:'Azeitona verde c/caroço',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p002',nome:'Ketchup Hellmanns',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p003',nome:'Maionese Hellmanns',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p004',nome:'Molho Barbecue Tambaú',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p005',nome:'Molho Tarê Sakura 5L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p006',nome:'Molho Tomate Bonare',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p007',nome:'Orégano LESN 500g',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  // Laticínios e Queijos
-  {id:'p008',nome:'Coalho Jucurutu',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p009',nome:'Cream Cheese Catupiry',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p010',nome:'Creme de Leite Betânia',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p011',nome:'Gorgonzola',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p012',nome:'Muçarela',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p013',nome:'Provolone Lactoual',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p014',nome:'Queijo Parmesão',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p015',nome:'Requeijão Polenghi',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p016',nome:'Requeijão Tirolez',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  // Frios e Proteínas
-  {id:'p017',nome:'Apresuntado Seara',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  {id:'p018',nome:'Carne de sol',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  {id:'p019',nome:'Filé de camarão',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  {id:'p020',nome:'Frango',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  {id:'p021',nome:'Linguiça Calabresa Frimesa',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  {id:'p022',nome:'Pepperoni Fatiado Frimesa',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  // Doces e Coberturas
-  {id:'p023',nome:'Cobertura Chocolate Bom Princípio',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  {id:'p024',nome:'Cobertura Genuine Chocolate',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  {id:'p025',nome:'Creme de Avelã Nutella 3kg',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  {id:'p026',nome:'Doce de Leite Mu-Mu',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  {id:'p027',nome:'Leite Condensado Betânia',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  {id:'p028',nome:'Recheio Ovomaltine',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  // Farinhas, Massas e Panificação
-  {id:'p029',nome:'Farinha Trigo Finna',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Farinhas e Massas'},
-  {id:'p030',nome:'Fermento Fleischmann',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Farinhas e Massas'},
-  {id:'p031',nome:'Fubá Milho Mimoso Yoki',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Farinhas e Massas'},
-  // Mercearia
-  {id:'p032',nome:'Açúcar Cristal',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
-  {id:'p033',nome:'Milho Verde Bonare',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
-  {id:'p034',nome:'Óleo Soja Liza',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
-  {id:'p035',nome:'Ovo MD Vermelho 30un',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
+  {id:'g045',nome:'Molho de tomate sachê 1,7kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g046',nome:'Catchup 1,2kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g047',nome:'Molho barbecue 3,4kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g048',nome:'Molho shoyu',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g049',nome:'Vinagre de álcool',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
   // Embalagens e Descartáveis
-  {id:'p036',nome:'Copo descartável',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  {id:'p037',nome:'Mesinha de pizza',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  {id:'p038',nome:'Pote para molho',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  {id:'p039',nome:'Pote para salva bordas',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  {id:'p040',nome:'Sacola Camiseta 60x70',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  {id:'p041',nome:'Saco de lixo',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  // Bebidas
-  {id:'p042',nome:'Cajuína 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p043',nome:'Cajuína lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p044',nome:'Coca 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p045',nome:'Coca lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p046',nome:'Coca Zero 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p047',nome:'Coca Zero lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p048',nome:'Guaraná 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p049',nome:'Guaraná lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p050',nome:'Guaraná Zero lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'}
+  {id:'g050',nome:'Saco delivery de papel',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g051',nome:'Saco ziplock p/ frango assado',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g052',nome:'Embalagem individual RK67 PP c/ tampa filme',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g053',nome:'Embalagem dupla K121 PP c/ tampa filme',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g054',nome:'Quentinha de isopor R-2',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g055',nome:'Embalagem G-695',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g056',nome:'Embalagem G-742',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g057',nome:'Pote retangular 500ml',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g058',nome:'Pote retangular 700ml',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g059',nome:'Pote 1000ml c/ copos',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g060',nome:'Saco 9x20',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g061',nome:'Sacola reciclada 40x50',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g062',nome:'Sacola atacarejo 60x70',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g063',nome:'Touca descartável (pct c/100)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g064',nome:'Luva de vinil G s/ pó (pct c/100)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g065',nome:'Grampo galvanizado (cx c/5000)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g066',nome:'Bobina térmica 80x40m',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  // Limpeza
+  {id:'g067',nome:'Detergente neutro 5L',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g068',nome:'Água sanitária 1L',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g069',nome:'Esponja dupla face',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g070',nome:'Esponja de aço (pct c/8)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g071',nome:'Sabão em pó 400g',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g072',nome:'Sabão em barra 200g (pct c/5)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+
+  // ── SEU ANTONIO PIZZARIA ──────────────────────────────────────────
+  // Laticínios e Frios
+  {id:'p001',nome:'Queijo mussarela',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Frios'},
+  {id:'p002',nome:'Queijo de coalho',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Frios'},
+  {id:'p003',nome:'Queijo ralado',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Frios'},
+  {id:'p004',nome:'Cream cheese',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Frios'},
+  {id:'p005',nome:'Requeijão / Catupiry',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Frios'},
+  {id:'p006',nome:'Creme culinário',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Frios'},
+  {id:'p007',nome:'Presunto cozido',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Frios'},
+  {id:'p008',nome:'Linguiça calabresa reta',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Frios'},
+  // Mercearia Seca
+  {id:'p009',nome:'Farinha de trigo p/ pizza',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia Seca'},
+  {id:'p010',nome:'Fubá de milho',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia Seca'},
+  {id:'p011',nome:'Açúcar cristal',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia Seca'},
+  {id:'p012',nome:'Óleo de soja',unidade:'litro',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia Seca'},
+  {id:'p013',nome:'Orégano seco',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia Seca'},
+  {id:'p014',nome:'Fermento biológico seco',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia Seca'},
+  {id:'p015',nome:'Leite condensado',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia Seca'},
+  // Molhos e Conservas
+  {id:'p016',nome:'Molho de tomate sachê 1,7kg',unidade:'und',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Conservas'},
+  {id:'p017',nome:'Palmito pupunha picado',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Conservas'},
+  {id:'p018',nome:'Milho verde',unidade:'und',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Conservas'},
+  {id:'p019',nome:'Azeitona verde c/ caroço média',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Conservas'},
+  {id:'p020',nome:'Azeitona verde c/ caroço miúda',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Conservas'},
+  {id:'p021',nome:'Mostarda amarela',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Conservas'},
+  // Chocolates e Coberturas
+  {id:'p022',nome:'Creme de avelã Nutella',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Chocolates e Coberturas'},
+  {id:'p023',nome:'Ovomaltine creme avelã crocante',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Chocolates e Coberturas'},
+  {id:'p024',nome:'Recheio chocolate branco',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Chocolates e Coberturas'},
+  {id:'p025',nome:'Recheio chocolate ao leite',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Chocolates e Coberturas'},
+  {id:'p026',nome:'Cobertura chocolate ao leite',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Chocolates e Coberturas'},
+  {id:'p027',nome:'Doce de leite',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Chocolates e Coberturas'},
+  // Embalagens e Descartáveis
+  {id:'p028',nome:'Base para pizza (disco/papelão)',unidade:'und',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
+  {id:'p029',nome:'Saco para hambúrguer',unidade:'und',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
+  {id:'p030',nome:'Pote para molho G-695',unidade:'und',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
+  {id:'p031',nome:'Kit garfo e faca descartável',unidade:'und',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
+  {id:'p032',nome:'Prato papelão n.10',unidade:'und',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
+  {id:'p033',nome:'Prato descartável Ultra PR-23',unidade:'und',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'}
 ];
 
 let ajusteAtual = null;
 
 function initEstoque() {
   // Reset if items don't have categoria (old format) or are empty
-  if (!E.itensEstoque || !E.itensEstoque.length || !E.itensEstoque[0].categoria) {
+  // Reset if items are old format or first item doesn't match new list
+  if (!E.itensEstoque || !E.itensEstoque.length || !E.itensEstoque[0].categoria ||
+      E.itensEstoque[0].id !== ITENS_INICIAIS[0].id ||
+      E.itensEstoque[0].nome !== ITENS_INICIAIS[0].nome) {
     E.itensEstoque = JSON.parse(JSON.stringify(ITENS_INICIAIS));
   }
   if (!E.movimentacoes) E.movimentacoes = [];
@@ -1637,8 +1653,8 @@ async function enviarMovSheet(mov) {
 }
 
 var CATS_PADRAO = {
-  'Galeteria Express': ['Proteínas e Carnes', 'Laticínios e Queijos', 'Hortifruti', 'Massas e Farinhas', 'Mercearia', 'Molhos e Temperos', 'Bebidas', 'Embalagens e Descartáveis'],
-  'Seu Antonio Pizzaria': ['Molhos e Condimentos', 'Laticínios e Queijos', 'Frios e Proteínas', 'Doces e Coberturas', 'Farinhas e Massas', 'Mercearia', 'Embalagens e Descartáveis', 'Bebidas']
+  'Galeteria Express': ['Proteínas e Congelados', 'Hortifruti', 'Secos e Mercearia', 'Laticínios, Frios e Gorduras', 'Molhos e Condimentos', 'Embalagens e Descartáveis', 'Limpeza'],
+  'Seu Antonio Pizzaria': ['Laticínios e Frios', 'Mercearia Seca', 'Molhos e Conservas', 'Chocolates e Coberturas', 'Embalagens e Descartáveis']
 };
 
 function getCatsDoRestaurante(rest) {
