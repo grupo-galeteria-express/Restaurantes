@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="Galeteria" />
 <meta name="theme-color" content="#E63000" />
-<title>Estoque — Galeteria Express & Seu Antonio Pizzaria</title>
+<title>Estoque — Galeteria Express</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   :root {
@@ -96,9 +96,6 @@
 
   <div class="filter-row">
     <input type="text" id="busca" placeholder="Buscar item..." oninput="renderEstoque()" style="flex:1;" />
-    <select id="filtro-rest" onchange="renderEstoque()">
-      <option value="">Todos</option>
-    </select>
   </div>
 
   <div id="estoque-lista" class="estoque-grid"></div>
@@ -160,113 +157,85 @@ const SK = 'gest_rest_v5';
 const RESTAURANTES = ['Galeteria Express', 'Seu Antonio Pizzaria'];
 
 const ITENS_INICIAIS = [
-  // GALETERIA EXPRESS
-  // Proteínas e Carnes
-  {id:'g001',nome:'Carne de sol',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g002',nome:'Carne moída',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g003',nome:'Carne bife',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g004',nome:'Maminha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g005',nome:'Peito de frango',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g006',nome:'Frango panqueca',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g007',nome:'Filé de peixe',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g008',nome:'Calabresa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g009',nome:'Bacon',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  {id:'g010',nome:'Presunto',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Carnes'},
-  // Laticínios e Queijos
-  {id:'g011',nome:'Mussarela',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g012',nome:'Provolone',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g013',nome:'Gorgonzola',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g014',nome:'Parmesão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g015',nome:'Creme de leite',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g016',nome:'Leite',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g017',nome:'Catupiry',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g018',nome:'Creme do sertão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
-  {id:'g019',nome:'Maionese',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios e Queijos'},
+  // Proteínas e Congelados
+  {id:'g001',nome:'Frango inteiro c/ miúdos congelado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g002',nome:'Carne de sol',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g003',nome:'Bife de coxão duro',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g004',nome:'Linguiça churrasco',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g005',nome:'Maminha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g006',nome:'Filé de peito de frango',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g007',nome:'Filé de tilápia',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g008',nome:'Batata palito congelada',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g009',nome:'Batata pré-frita McCain One Fry',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
   // Hortifruti
-  {id:'g020',nome:'Tomate',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g021',nome:'Cenoura',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g022',nome:'Batata inglesa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g023',nome:'Batata palito',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g024',nome:'Batata palha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g025',nome:'Cebola',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g026',nome:'Macaxeira',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g027',nome:'Alho',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g028',nome:'Salsa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g029',nome:'Manjericão',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  {id:'g030',nome:'Feijão verde',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
-  // Massas e Farinhas
-  {id:'g031',nome:'Arroz',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g032',nome:'Feijão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g033',nome:'Macarrão',unidade:'gramas',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g034',nome:'Massa lasanha',unidade:'gramas',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g035',nome:'Macarrão fettuccine',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g036',nome:'Farinha de trigo',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  {id:'g037',nome:'Farinha de rosca',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Massas e Farinhas'},
-  // Molhos e Temperos
-  {id:'g038',nome:'Molho barbecue',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Temperos'},
-  {id:'g039',nome:'Molho cheddar',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Temperos'},
-  {id:'g040',nome:'Manteiga da terra',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Temperos'},
-  // Mercearia
-  {id:'g041',nome:'Açúcar',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Mercearia'},
-  // SEU ANTONIO PIZZARIA
+  {id:'g010',nome:'Batata inglesa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g011',nome:'Tomate',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g012',nome:'Cenoura',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g013',nome:'Repolho branco',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g014',nome:'Cebolinha',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g015',nome:'Coentro',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g016',nome:'Uva Vitória sem semente',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g017',nome:'Salsinha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g018',nome:'Ervas finas',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g019',nome:'Alho descascado congelado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  // Secos e Mercearia
+  {id:'g020',nome:'Arroz branco tipo 1',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g021',nome:'Arroz parboilizado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g022',nome:'Pasta de alho',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g023',nome:'Sal moído',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g024',nome:'Açúcar cristal',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g025',nome:'Farinha de trigo s/ fermento',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g026',nome:'Macarrão espaguete',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g027',nome:'Farinha de mandioca amarela',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g028',nome:'Farinha de mandioca branca',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g029',nome:'Farinha panko',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g030',nome:'Batata palha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g031',nome:'Colorífico',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g032',nome:'Amaciante de carne',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g033',nome:'Caldo de carne 1,01kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g034',nome:'Caldo de galinha 1,01kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g035',nome:'Caldo de legumes 1,01kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  // Laticínios, Frios e Gorduras
+  {id:'g036',nome:'Creme do sertão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g037',nome:'Mussarela fatiada',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g038',nome:'Presunto fatiado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g039',nome:'Gordura de palma',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g040',nome:'Leite UHT integral',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g041',nome:'Manteiga da terra',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g042',nome:'Mistura creme de leite 200g',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g043',nome:'Creme culinário 1kg',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g044',nome:'Óleo de soja',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
   // Molhos e Condimentos
-  {id:'p001',nome:'Azeitona verde c/caroço',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p002',nome:'Ketchup Hellmanns',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p003',nome:'Maionese Hellmanns',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p004',nome:'Molho Barbecue Tambaú',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p005',nome:'Molho Tarê Sakura 5L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p006',nome:'Molho Tomate Bonare',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  {id:'p007',nome:'Orégano LESN 500g',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Molhos e Condimentos'},
-  // Laticínios e Queijos
-  {id:'p008',nome:'Coalho Jucurutu',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p009',nome:'Cream Cheese Catupiry',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p010',nome:'Creme de Leite Betânia',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p011',nome:'Gorgonzola',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p012',nome:'Muçarela',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p013',nome:'Provolone Lactoual',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p014',nome:'Queijo Parmesão',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p015',nome:'Requeijão Polenghi',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  {id:'p016',nome:'Requeijão Tirolez',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Laticínios e Queijos'},
-  // Frios e Proteínas
-  {id:'p017',nome:'Apresuntado Seara',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  {id:'p018',nome:'Carne de sol',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  {id:'p019',nome:'Filé de camarão',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  {id:'p020',nome:'Frango',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  {id:'p021',nome:'Linguiça Calabresa Frimesa',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  {id:'p022',nome:'Pepperoni Fatiado Frimesa',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Frios e Proteínas'},
-  // Doces e Coberturas
-  {id:'p023',nome:'Cobertura Chocolate Bom Princípio',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  {id:'p024',nome:'Cobertura Genuine Chocolate',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  {id:'p025',nome:'Creme de Avelã Nutella 3kg',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  {id:'p026',nome:'Doce de Leite Mu-Mu',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  {id:'p027',nome:'Leite Condensado Betânia',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  {id:'p028',nome:'Recheio Ovomaltine',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Doces e Coberturas'},
-  // Farinhas, Massas e Panificação
-  {id:'p029',nome:'Farinha Trigo Finna',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Farinhas e Massas'},
-  {id:'p030',nome:'Fermento Fleischmann',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Farinhas e Massas'},
-  {id:'p031',nome:'Fubá Milho Mimoso Yoki',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Farinhas e Massas'},
-  // Mercearia
-  {id:'p032',nome:'Açúcar Cristal',unidade:'kg',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
-  {id:'p033',nome:'Milho Verde Bonare',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
-  {id:'p034',nome:'Óleo Soja Liza',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
-  {id:'p035',nome:'Ovo MD Vermelho 30un',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Mercearia'},
+  {id:'g045',nome:'Molho de tomate sachê 1,7kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g046',nome:'Catchup 1,2kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g047',nome:'Molho barbecue 3,4kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g048',nome:'Molho shoyu',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g049',nome:'Vinagre de álcool',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
   // Embalagens e Descartáveis
-  {id:'p036',nome:'Copo descartável',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  {id:'p037',nome:'Mesinha de pizza',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  {id:'p038',nome:'Pote para molho',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  {id:'p039',nome:'Pote para salva bordas',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  {id:'p040',nome:'Sacola Camiseta 60x70',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  {id:'p041',nome:'Saco de lixo',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Embalagens e Descartáveis'},
-  // Bebidas
-  {id:'p042',nome:'Cajuína 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p043',nome:'Cajuína lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p044',nome:'Coca 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p045',nome:'Coca lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p046',nome:'Coca Zero 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p047',nome:'Coca Zero lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p048',nome:'Guaraná 1L',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p049',nome:'Guaraná lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'},
-  {id:'p050',nome:'Guaraná Zero lata',unidade:'un',minimo:0,restaurante:'Seu Antonio Pizzaria',categoria:'Bebidas'}
+  {id:'g050',nome:'Saco delivery de papel',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g051',nome:'Saco ziplock p/ frango assado',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g052',nome:'Embalagem individual RK67 PP c/ tampa filme',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g053',nome:'Embalagem dupla K121 PP c/ tampa filme',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g054',nome:'Quentinha de isopor R-2',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g055',nome:'Embalagem G-695',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g056',nome:'Embalagem G-742',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g057',nome:'Pote retangular 500ml',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g058',nome:'Pote retangular 700ml',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g059',nome:'Pote 1000ml c/ copos',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g060',nome:'Saco 9x20',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g061',nome:'Sacola reciclada 40x50',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g062',nome:'Sacola atacarejo 60x70',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g063',nome:'Touca descartável (pct c/100)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g064',nome:'Luva de vinil G s/ pó (pct c/100)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g065',nome:'Grampo galvanizado (cx c/5000)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g066',nome:'Bobina térmica 80x40m',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  // Limpeza
+  {id:'g067',nome:'Detergente neutro 5L',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g068',nome:'Água sanitária 1L',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g069',nome:'Esponja dupla face',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g070',nome:'Esponja de aço (pct c/8)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g071',nome:'Sabão em pó 400g',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g072',nome:'Sabão em barra 200g (pct c/5)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'}
 ];
 
 let E = { itensEstoque: [], movimentacoes: [] };
@@ -279,7 +248,10 @@ function carregar() {
     if (d) { const p = JSON.parse(d); E = {...E, ...p}; }
   } catch(e) {}
   // Reset if items don't have categoria (old format) or are empty
-  if (!E.itensEstoque || !E.itensEstoque.length || !E.itensEstoque[0].categoria) {
+  // Reset if items are old format or first item doesn't match new list
+  if (!E.itensEstoque || !E.itensEstoque.length || !E.itensEstoque[0].categoria ||
+      E.itensEstoque[0].id !== ITENS_INICIAIS[0].id ||
+      E.itensEstoque[0].nome !== ITENS_INICIAIS[0].nome) {
     E.itensEstoque = JSON.parse(JSON.stringify(ITENS_INICIAIS));
   }
   if (!E.movimentacoes) E.movimentacoes = [];
@@ -299,10 +271,10 @@ function getQty(itemId, restaurante) {
 
 function renderEstoque() {
   const busca = (document.getElementById('busca').value || '').toLowerCase();
-  const rest = document.getElementById('filtro-rest').value;
+  const rest = 'Galeteria Express';
   let itens = E.itensEstoque || [];
+  itens = itens.filter(i => i.restaurante === rest);
   if (busca) itens = itens.filter(i => i.nome.toLowerCase().includes(busca));
-  if (rest) itens = itens.filter(i => i.restaurante === rest);
 
   const el = document.getElementById('estoque-lista');
   if (!itens.length) { el.innerHTML = '<div class="empty">Nenhum item encontrado.</div>'; return; }
@@ -389,13 +361,10 @@ function abrirAjuste(itemId, tipo) {
   selRest.innerHTML = RESTAURANTES.map(r => `<option value="${r}">${r}</option>`).join('');
 
   // Pre-select from filter or item restaurante
-  const filtroAtivo = document.getElementById('filtro-rest').value;
-  const preSelect = filtroAtivo || item.restaurante;
-  if (preSelect) selRest.value = preSelect;
-
-  // Hide restaurante field if filter is active
+  selRest.value = 'Galeteria Express';
+  // Always hide restaurante field - fixed to Galeteria
   const grupoRest = document.getElementById('modal-rest-grupo');
-  if (grupoRest) grupoRest.style.display = filtroAtivo ? 'none' : '';
+  if (grupoRest) grupoRest.style.display = 'none';
 
   document.getElementById('modal-ajuste').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -525,7 +494,562 @@ async function confirmarComprar() {
   if (!qty || qty <= 0) { alert('Informe a quantidade.'); return; }
   var item = (E.itensEstoque||[]).find(function(i) { return i.id === itemId; });
   if (!item) return;
-  var rest = document.getElementById('filtro-rest').value || item.restaurante;
+  var rest = 'Galeteria Express';
+  var compra = {
+    id: Date.now(), itemId: itemId, nomeItem: item.nome,
+    unidade: item.unidade, categoria: item.categoria || '',
+    restaurante: rest, qty: qty,
+    data: new Date().toISOString().slice(0,10), comprado: false
+  };
+  if (!E.listaCompras) E.listaCompras = [];
+  E.listaCompras.push(compra);
+  salvar();
+  fecharModal('modal-comprar');
+  renderComprasFunc();
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({...compra, sheet: 'compras'}) });
+  } catch(e) {}
+}
+
+async function marcarComprado(id) {
+  if (!confirm('Marcar como comprado?')) return;
+  E.listaCompras = (E.listaCompras||[]).filter(function(c) { return c.id !== id; });
+  salvar();
+  renderComprasFunc();
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({action:'delete', sheet:'compras', id}) });
+  } catch(e) {}
+}
+
+function renderComprasFunc() {
+  var el = document.getElementById('lista-compras-func');
+  if (!el) return;
+  var itens = (E.listaCompras||[]).filter(function(c) { return !c.comprado; });
+  if (!itens.length) { el.innerHTML = '<div style="text-align:center;padding:1rem;color:#9E9E99;font-size:13px;">Nenhum item na lista.</div>'; return; }
+  var html = itens.map(function(c) {
+    var qd = (c.qty % 1 === 0) ? String(Math.round(c.qty)) : c.qty.toFixed(2);
+    return '<div class="compra-item">' +
+      '<div style="flex:1;"><div class="compra-nome-text">' + c.nomeItem + '</div><div class="compra-sub">' + c.restaurante + '</div></div>' +
+      '<div class="compra-qty">' + qd + ' ' + c.unidade + '</div>' +
+      '<button class="btn-comprado" onclick="marcarComprado(' + c.id + ')">✓</button>' +
+    '</div>';
+  }).join('');
+  el.innerHTML = html;
+}
+
+function init() {
+  carregar();
+  populateRests();
+  renderEstoque();
+  renderMovHoje();
+  if (!E.listaCompras) E.listaCompras = [];
+  renderComprasFunc();
+  sincronizar();
+  setInterval(sincronizar, 2 * 60 * 1000);
+}
+
+init();
+</script>
+</body>
+</html>var CATS_PADRAO = {
+  'Galeteria Express': ['Proteínas e Congelados', 'Hortifruti', 'Secos e Mercearia', 'Laticínios, Frios e Gorduras', 'Molhos e Condimentos', 'Embalagens e Descartáveis', 'Limpeza']
+};DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" type="image/png" href="icon.png" />
+<link rel="apple-touch-icon" href="icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Galeteria" />
+<meta name="theme-color" content="#E63000" />
+<title>Estoque — Galeteria Express</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --brand: #E63000; --brand-dark: #B32500;
+    --bg: #F7F6F3; --surface: #FFFFFF; --border: rgba(0,0,0,0.08); --border-strong: rgba(0,0,0,0.14);
+    --text: #1A1A18; --text-muted: #6B6B67; --text-hint: #9E9E99;
+    --green: #1D9E75; --green-bg: #E1F5EE; --green-text: #0F6E56;
+    --red: #D85A30; --red-bg: #FAECE7; --red-text: #993C1D;
+    --amber: #BA7517; --amber-bg: #FAEEDA; --amber-text: #854F0B;
+    --blue: #185FA5; --blue-bg: #E6F1FB; --blue-text: #0C447C;
+    --radius: 10px; --radius-sm: 6px;
+    --font: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  .main { display: block !important; }
+  #estoque-lista, #lista-compras-func { width: 100% !important; float: none !important; }
+  .header { background: var(--brand); border-bottom: none; padding: 0 1.25rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(230,48,0,0.25); }
+  .header-inner { max-width: 600px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .logo { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; color: white; display: flex; align-items: center; gap: 8px; }
+  .logo span { color: rgba(255,255,255,0.75); font-weight: 300; }
+  .main { max-width: 600px; margin: 0 auto; padding: 1.25rem; }
+  .sbar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 1rem; }
+  .sbar.ok { background: var(--green-bg); color: var(--green-text); }
+  .sbar.err { background: var(--red-bg); color: var(--red-text); }
+  .sbar.info { background: var(--blue-bg); color: var(--blue-text); }
+  .spinner { width: 13px; height: 13px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .filter-row { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+  input, select { font-family: var(--font); font-size: 14px; color: var(--text); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 0 10px; height: 38px; outline: none; }
+  input:focus, select:focus { border-color: var(--text); }
+  .estoque-grid { display: flex; flex-direction: column; gap: 8px; }
+  .estoque-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+  .estoque-item.low { border-left: 3px solid var(--red); }
+  .estoque-nome { flex: 1; font-size: 14px; font-weight: 500; }
+  .estoque-unidade { font-size: 12px; color: var(--text-hint); }
+  .estoque-qty { font-size: 20px; font-weight: 500; font-family: var(--mono); min-width: 80px; text-align: center; }
+  .estoque-qty.low { color: var(--red); }
+  .qty-btn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--bg); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); flex-shrink: 0; transition: all 0.15s; }
+  .qty-btn.plus:hover, .qty-btn.plus:active { background: var(--brand); color: white; border-color: var(--brand); }
+  .qty-btn.minus:hover, .qty-btn.minus:active { background: var(--red); color: white; border-color: var(--red); }
+  .btn { height: 38px; padding: 0 18px; font-size: 14px; cursor: pointer; border-radius: var(--radius-sm); font-family: var(--font); font-weight: 500; border: none; }
+  .btn-primary { background: var(--brand); color: white; }
+  .btn-primary:hover { background: var(--brand-dark); }
+  .btn-ghost { background: none; border: 1px solid var(--border-strong); color: var(--text-muted); }
+  .empty { text-align: center; padding: 3rem; color: var(--text-hint); font-size: 13px; }
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100% !important; height: 100% !important; background: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: var(--radius); padding: 1.5rem; width: 100%; max-width: 380px; position: relative; z-index: 10000; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+  .modal-title { font-size: 16px; font-weight: 500; margin-bottom: 1.25rem; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  .form-group label { font-size: 12px; color: var(--text-muted); }
+  .form-group input, .form-group select { width: 100%; }
+  .modal-btns { display: flex; gap: 8px; margin-top: 1.25rem; }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+  .b-rec { background: var(--green-bg); color: var(--green-text); }
+  .b-av { background: var(--red-bg); color: var(--red-text); }
+  .section-title { font-size: 12px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin: 1.5rem 0 0.75rem; }
+  .mov-table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .mov-table th { font-size: 11px; color: var(--text-hint); text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.05em; }
+  .mov-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
+  .mov-table tr:last-child td { border-bottom: none; }
+
+  .btn-comprar { background: #FFF1EC; color: var(--brand); border: 1px solid var(--brand); border-radius: var(--radius-sm); padding: 4px 10px; font-size: 11px; font-weight: 500; cursor: pointer; font-family: var(--font); white-space: nowrap; flex-shrink: 0; }
+  .btn-comprar:hover { background: var(--brand); color: white; }
+  .compra-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; }
+  .compra-nome-text { font-size: 14px; font-weight: 500; }
+  .compra-sub { font-size: 11px; color: var(--text-hint); margin-top: 2px; }
+  .compra-qty { font-size: 15px; font-weight: 500; font-family: var(--mono); color: var(--brand); min-width: 80px; text-align: right; }
+  .btn-comprado { background: var(--green); color: white; border: none; border-radius: var(--radius-sm); padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--font); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo">🔥 Estoque <span>Galeteria Express</span></div>
+    <span style="font-size:12px;color:var(--text-hint);" id="ultima-atualizacao"></span>
+  </div>
+</div>
+
+<div class="main">
+  <div id="sb"></div>
+
+  <div class="filter-row">
+    <input type="text" id="busca" placeholder="Buscar item..." oninput="renderEstoque()" style="flex:1;" />
+  </div>
+
+  <div id="estoque-lista" class="estoque-grid"></div>
+
+  <div class="section-title">Minhas movimentações de hoje</div>
+  <table class="mov-table">
+    <thead><tr><th>Item</th><th>Motivo</th><th>Qtd</th></tr></thead>
+    <tbody id="mov-hoje"></tbody>
+  </table>
+</div>
+
+<!-- MODAL AJUSTE -->
+<div class="modal-overlay" id="modal-ajuste">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Ajustar estoque</div>
+    <input type="hidden" id="modal-item-id" />
+    <input type="hidden" id="modal-tipo" />
+    <div class="form-group">
+      <label>Quantidade</label>
+      <input type="number" id="modal-qty" step="0.01" min="0.01" placeholder="0" inputmode="decimal" />
+    </div>
+    <div class="form-group">
+      <label>Motivo</label>
+      <select id="modal-motivo"></select>
+    </div>
+    <div class="form-group" id="modal-rest-grupo">
+      <label>Restaurante</label>
+      <select id="modal-rest"></select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmarAjuste()">Confirmar</button>
+      <button class="btn btn-ghost" onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMPRAR -->
+<div class="modal-overlay" id="modal-comprar" onclick="if(event.target===this)fecharModal('modal-comprar')">
+  <div class="modal">
+    <div class="modal-title" id="modal-comprar-title">Adicionar à lista</div>
+    <input type="hidden" id="modal-comprar-item-id" />
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>Quantidade necessária</label>
+      <input type="text" id="modal-comprar-qty" inputmode="decimal" placeholder="0" style="width:100%;" />
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmarComprar()">Adicionar</button>
+      <button class="btn btn-ghost" onclick="fecharModal('modal-comprar')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwC8GD9Zh222I00EmO9qlu7u0URGsQm_xSyWkoSqBKb6hcctrHnjwYSh_gBcIEzGc1E/exec';
+const SK = 'gest_rest_v5';
+
+const RESTAURANTES = ['Galeteria Express', 'Seu Antonio Pizzaria'];
+
+const ITENS_INICIAIS = [
+  // Proteínas e Congelados
+  {id:'g001',nome:'Frango inteiro c/ miúdos congelado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g002',nome:'Carne de sol',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g003',nome:'Bife de coxão duro',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g004',nome:'Linguiça churrasco',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g005',nome:'Maminha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g006',nome:'Filé de peito de frango',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g007',nome:'Filé de tilápia',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g008',nome:'Batata palito congelada',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  {id:'g009',nome:'Batata pré-frita McCain One Fry',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Proteínas e Congelados'},
+  // Hortifruti
+  {id:'g010',nome:'Batata inglesa',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g011',nome:'Tomate',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g012',nome:'Cenoura',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g013',nome:'Repolho branco',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g014',nome:'Cebolinha',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g015',nome:'Coentro',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g016',nome:'Uva Vitória sem semente',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g017',nome:'Salsinha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g018',nome:'Ervas finas',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  {id:'g019',nome:'Alho descascado congelado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Hortifruti'},
+  // Secos e Mercearia
+  {id:'g020',nome:'Arroz branco tipo 1',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g021',nome:'Arroz parboilizado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g022',nome:'Pasta de alho',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g023',nome:'Sal moído',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g024',nome:'Açúcar cristal',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g025',nome:'Farinha de trigo s/ fermento',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g026',nome:'Macarrão espaguete',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g027',nome:'Farinha de mandioca amarela',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g028',nome:'Farinha de mandioca branca',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g029',nome:'Farinha panko',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g030',nome:'Batata palha',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g031',nome:'Colorífico',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g032',nome:'Amaciante de carne',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g033',nome:'Caldo de carne 1,01kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g034',nome:'Caldo de galinha 1,01kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  {id:'g035',nome:'Caldo de legumes 1,01kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Secos e Mercearia'},
+  // Laticínios, Frios e Gorduras
+  {id:'g036',nome:'Creme do sertão',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g037',nome:'Mussarela fatiada',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g038',nome:'Presunto fatiado',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g039',nome:'Gordura de palma',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g040',nome:'Leite UHT integral',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g041',nome:'Manteiga da terra',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g042',nome:'Mistura creme de leite 200g',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g043',nome:'Creme culinário 1kg',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  {id:'g044',nome:'Óleo de soja',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Laticínios, Frios e Gorduras'},
+  // Molhos e Condimentos
+  {id:'g045',nome:'Molho de tomate sachê 1,7kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g046',nome:'Catchup 1,2kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g047',nome:'Molho barbecue 3,4kg',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g048',nome:'Molho shoyu',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  {id:'g049',nome:'Vinagre de álcool',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Molhos e Condimentos'},
+  // Embalagens e Descartáveis
+  {id:'g050',nome:'Saco delivery de papel',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g051',nome:'Saco ziplock p/ frango assado',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g052',nome:'Embalagem individual RK67 PP c/ tampa filme',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g053',nome:'Embalagem dupla K121 PP c/ tampa filme',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g054',nome:'Quentinha de isopor R-2',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g055',nome:'Embalagem G-695',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g056',nome:'Embalagem G-742',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g057',nome:'Pote retangular 500ml',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g058',nome:'Pote retangular 700ml',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g059',nome:'Pote 1000ml c/ copos',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g060',nome:'Saco 9x20',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g061',nome:'Sacola reciclada 40x50',unidade:'kg',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g062',nome:'Sacola atacarejo 60x70',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g063',nome:'Touca descartável (pct c/100)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g064',nome:'Luva de vinil G s/ pó (pct c/100)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g065',nome:'Grampo galvanizado (cx c/5000)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  {id:'g066',nome:'Bobina térmica 80x40m',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Embalagens e Descartáveis'},
+  // Limpeza
+  {id:'g067',nome:'Detergente neutro 5L',unidade:'litro',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g068',nome:'Água sanitária 1L',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g069',nome:'Esponja dupla face',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g070',nome:'Esponja de aço (pct c/8)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g071',nome:'Sabão em pó 400g',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'},
+  {id:'g072',nome:'Sabão em barra 200g (pct c/5)',unidade:'und',minimo:0,restaurante:'Galeteria Express',categoria:'Limpeza'}
+];
+
+let E = { itensEstoque: [], movimentacoes: [] };
+let ajusteAtual = null;
+
+function salvar() { try { localStorage.setItem(SK, JSON.stringify(E)); } catch(e) {} }
+function carregar() {
+  try {
+    const d = localStorage.getItem(SK);
+    if (d) { const p = JSON.parse(d); E = {...E, ...p}; }
+  } catch(e) {}
+  // Reset if items don't have categoria (old format) or are empty
+  // Reset if items are old format or first item doesn't match new list
+  if (!E.itensEstoque || !E.itensEstoque.length || !E.itensEstoque[0].categoria ||
+      E.itensEstoque[0].id !== ITENS_INICIAIS[0].id ||
+      E.itensEstoque[0].nome !== ITENS_INICIAIS[0].nome) {
+    E.itensEstoque = JSON.parse(JSON.stringify(ITENS_INICIAIS));
+  }
+  if (!E.movimentacoes) E.movimentacoes = [];
+}
+
+function showSB(msg, type) {
+  const el = document.getElementById('sb');
+  if (!msg) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="sbar ${type}">${type==='info'?'<div class="spinner"></div>':''} ${msg}</div>`;
+}
+
+function getQty(itemId, restaurante) {
+  return E.movimentacoes
+    .filter(m => m.itemId === itemId && (!restaurante || m.restaurante === restaurante))
+    .reduce((s, m) => m.motivo === 'entrada' ? s + m.qty : s - m.qty, 0);
+}
+
+function renderEstoque() {
+  const busca = (document.getElementById('busca').value || '').toLowerCase();
+  const rest = 'Galeteria Express';
+  let itens = E.itensEstoque || [];
+  itens = itens.filter(i => i.restaurante === rest);
+  if (busca) itens = itens.filter(i => i.nome.toLowerCase().includes(busca));
+
+  const el = document.getElementById('estoque-lista');
+  if (!itens.length) { el.innerHTML = '<div class="empty">Nenhum item encontrado.</div>'; return; }
+
+  // Group by categoria
+  var grupos = {};
+  for (var gi = 0; gi < itens.length; gi++) {
+    var gItem = itens[gi];
+    var gCat = gItem.categoria || 'Outros';
+    if (!grupos[gCat]) grupos[gCat] = [];
+    grupos[gCat].push(gItem);
+  }
+
+  var html = '';
+  var catKeys = Object.keys(grupos).sort();
+  for (var ci = 0; ci < catKeys.length; ci++) {
+    var cat = catKeys[ci];
+    var catHtml = '';
+    var catItems = grupos[cat];
+    for (var ii = 0; ii < catItems.length; ii++) {
+      var item = catItems[ii];
+      var qty = getQty(item.id, null);
+      var isLow = item.minimo > 0 && qty <= item.minimo;
+      var qtyDisplay = (qty % 1 === 0) ? String(Math.round(qty)) : qty.toFixed(2);
+      var lowClass = isLow ? ' low' : '';
+      catHtml += '<div class="estoque-item' + lowClass + '" id="est-' + item.id + '">';
+      catHtml += '<button class="qty-btn minus" data-id="' + item.id + '" data-tipo="saida" onclick="event.stopPropagation();abrirAjusteBtn(this)">−</button>';
+      catHtml += '<div style="flex:1;padding:0 8px;">';
+      catHtml += '<div class="estoque-nome">' + item.nome + '</div>';
+      catHtml += '<div class="estoque-unidade">' + item.unidade + '</div>';
+      catHtml += '</div>';
+      catHtml += '<div class="estoque-qty' + lowClass + '" id="qty-' + item.id + '">' + qtyDisplay + ' <span style="font-size:12px;color:#9E9E99;font-weight:400;">' + item.unidade + '</span></div>';
+      catHtml += '<button class="qty-btn plus" data-id="' + item.id + '" data-tipo="entrada" onclick="event.stopPropagation();abrirAjusteBtn(this)">+</button>';
+      catHtml += '<button class="btn-comprar" data-id="' + item.id + '" onclick="event.stopPropagation();abrirComprarBtnFunc(this)">Comprar</button>';
+      catHtml += '</div>';
+    }
+    html += '<div style="margin-bottom:1.25rem;">';
+    html += '<div style="font-size:11px;font-weight:600;color:#9E9E99;text-transform:uppercase;letter-spacing:0.06em;padding:0 4px;margin-bottom:8px;">' + cat + '</div>';
+    html += catHtml + '</div>';
+  }
+  el.innerHTML = html;;
+}
+
+function renderMovHoje() {
+  const hoje = new Date().toISOString().slice(0,10);
+  const movs = E.movimentacoes.filter(m => m.data === hoje).slice().reverse();
+  const motivoLabel = {entrada:'Entrada', uso:'Uso', perda:'Perda', inventario:'Correção'};
+  const tbody = document.getElementById('mov-hoje');
+  if (!movs.length) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:1.5rem;color:var(--text-hint);">Nenhuma movimentação hoje.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = movs.map(m => {
+    const item = (E.itensEstoque||[]).find(i => i.id === m.itemId);
+    const isPos = m.motivo === 'entrada';
+    const qtyDisplay = (m.qty % 1 === 0) ? String(Math.round(m.qty)) : m.qty.toFixed(2);
+    return `<tr>
+      <td>${item ? item.nome : m.itemId}</td>
+      <td><span class="badge ${isPos?'b-rec':'b-av'}">${motivoLabel[m.motivo]||m.motivo}</span></td>
+      <td style="font-weight:500;color:${isPos?'var(--green)':'var(--red)'};">${isPos?'+':'-'}${qtyDisplay} ${item?item.unidade:''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function abrirAjuste(itemId, tipo) {
+  const item = (E.itensEstoque||[]).find(i => i.id === itemId);
+  if (!item) return;
+  ajusteAtual = { itemId, tipo };
+
+  document.getElementById('modal-title').textContent = tipo === 'entrada' ? `Entrada — ${item.nome}` : `Saída — ${item.nome}`;
+  document.getElementById('modal-qty').value = '';
+
+  const selMotivo = document.getElementById('modal-motivo');
+  if (tipo === 'entrada') {
+    selMotivo.innerHTML = '<option value="entrada">Entrada (compra/recebimento)</option>';
+  } else {
+    selMotivo.innerHTML = `
+      <option value="uso">Uso na produção</option>
+      <option value="perda">Perda / descarte</option>
+      <option value="inventario">Correção</option>`;
+  }
+
+  const selRest = document.getElementById('modal-rest');
+  selRest.innerHTML = RESTAURANTES.map(r => `<option value="${r}">${r}</option>`).join('');
+
+  // Pre-select from filter or item restaurante
+  selRest.value = 'Galeteria Express';
+  // Always hide restaurante field - fixed to Galeteria
+  const grupoRest = document.getElementById('modal-rest-grupo');
+  if (grupoRest) grupoRest.style.display = 'none';
+
+  document.getElementById('modal-ajuste').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('modal-qty').focus(), 150);
+}
+
+function fecharModal(id) {
+  var modalId = id || 'modal-ajuste';
+  var el = document.getElementById(modalId);
+  if (el) el.classList.remove('open');
+  // Make sure all modals are closed
+  document.querySelectorAll('.modal-overlay.open').forEach(function(m) { m.classList.remove('open'); });
+  document.body.style.overflow = '';
+}
+
+async function confirmarAjuste() {
+  const qty = parseFloat(document.getElementById('modal-qty').value);
+  const motivo = document.getElementById('modal-motivo').value;
+  const rest = document.getElementById('modal-rest').value;
+  if (isNaN(qty) || qty <= 0) { alert('Informe uma quantidade válida.'); return; }
+
+  const mov = {
+    id: Date.now(),
+    itemId: ajusteAtual.itemId,
+    restaurante: rest,
+    motivo,
+    qty,
+    data: new Date().toISOString().slice(0,10),
+    timestamp: new Date().toISOString(),
+    sheet: 'movimentacoes'
+  };
+
+  showSB('Salvando...', 'info');
+  try {
+    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(mov) });
+    await res.json();
+    E.movimentacoes.push(mov);
+    salvar();
+    fecharModal('modal-ajuste');
+
+    // Atualiza qty na tela
+    const novaQty = getQty(mov.itemId, null);
+    const qtyEl = document.getElementById('qty-' + mov.itemId);
+    if (qtyEl) {
+      const itemAtual = (E.itensEstoque||[]).find(i => i.id === mov.itemId);
+      const qd = (novaQty % 1 === 0) ? String(Math.round(novaQty)) : novaQty.toFixed(2);
+      qtyEl.innerHTML = qd + ' <span style="font-size:12px;color:var(--text-hint);font-weight:400;">' + (itemAtual?itemAtual.unidade:'') + '</span>';
+    }
+    renderMovHoje();
+    showSB('Salvo!', 'ok');
+    setTimeout(() => showSB('',''), 2000);
+  } catch(e) {
+    showSB('Erro: ' + e.message, 'err');
+  }
+}
+
+function populateRests() {
+  const sel = document.getElementById('filtro-rest');
+  sel.innerHTML = '<option value="">Todos</option>' + RESTAURANTES.map(r => `<option value="${r}">${r}</option>`).join('');
+}
+
+async function sincronizar() {
+  try {
+    const res = await fetch(SCRIPT_URL + '?sheet=movimentacoes&t=' + Date.now());
+    const data = await res.json();
+    if (data.rows && data.rows.length > 1) {
+      E.movimentacoes = data.rows.slice(1).filter(r => r[0]).map(r => ({
+        id: parseInt(r[0]),
+        itemId: String(r[1]),
+        restaurante: String(r[2]),
+        motivo: String(r[3]),
+        qty: parseFloat(r[4]),
+        data: String(r[5]).slice(0,10)
+      }));
+      salvar();
+      renderEstoque();
+      renderMovHoje();
+    }
+    // Load compras
+    try {
+      var resC = await fetch(SCRIPT_URL + '?sheet=compras&t=' + Date.now());
+      var dataC = await resC.json();
+      if (dataC.rows && dataC.rows.length > 1) {
+        E.listaCompras = dataC.rows.slice(1).filter(function(r) {
+          return r[0] && String(r[8]) !== 'true';
+        }).map(function(r) {
+          return {
+            id: parseInt(r[0]), itemId: String(r[1]), nomeItem: String(r[2]),
+            unidade: String(r[3]), categoria: String(r[4]), restaurante: String(r[5]),
+            qty: parseFloat(r[6]), data: String(r[7]).slice(0,10), comprado: false
+          };
+        });
+        salvar();
+        renderComprasFunc();
+      }
+    } catch(e) {}
+    const agora = new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('ultima-atualizacao').textContent = 'Atualizado às ' + agora;
+  } catch(e) {
+    console.log('Erro sincronizar:', e.message);
+  }
+}
+
+
+function abrirAjusteBtn(btn) {
+  var id = btn.getAttribute('data-id');
+  var tipo = btn.getAttribute('data-tipo');
+  abrirAjuste(id, tipo);
+}
+
+
+function abrirComprarBtnFunc(btn) {
+  var id = btn.getAttribute('data-id');
+  var item = (E.itensEstoque||[]).find(function(i) { return i.id === id; });
+  if (!item) return;
+  document.getElementById('modal-comprar-title').textContent = 'Comprar — ' + item.nome;
+  document.getElementById('modal-comprar-item-id').value = id;
+  document.getElementById('modal-comprar-qty').value = '';
+  document.getElementById('modal-comprar').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(function() { document.getElementById('modal-comprar-qty').focus(); }, 100);
+}
+
+async function confirmarComprar() {
+  var itemId = document.getElementById('modal-comprar-item-id').value;
+  var qty = parseFloat(String(document.getElementById('modal-comprar-qty').value).replace(',','.'));
+  if (!qty || qty <= 0) { alert('Informe a quantidade.'); return; }
+  var item = (E.itensEstoque||[]).find(function(i) { return i.id === itemId; });
+  if (!item) return;
+  var rest = 'Galeteria Express';
   var compra = {
     id: Date.now(), itemId: itemId, nomeItem: item.nome,
     unidade: item.unidade, categoria: item.categoria || '',
